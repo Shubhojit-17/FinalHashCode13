@@ -156,6 +156,7 @@ MAX_FPS = 30
 SHOW_PREVIEW = True  # Show camera preview window
 SHOW_LANDMARKS = True  # Draw face landmarks
 SHOW_METRICS = True  # Display metrics on preview
+WINDOW_NAME = "EADA Pro - Workspace Optimizer"  # Window title
 
 # ==================== Feature Flags ====================
 ENABLE_FACE_DETECTION = True

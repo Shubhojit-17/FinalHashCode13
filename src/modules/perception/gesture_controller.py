@@ -28,6 +28,7 @@ class GestureController:
     Enhanced gesture controller using CVZone for accurate hand tracking
     
     Gestures based on finger count:
+    - 0 Fingers (Fist): Toggle gesture control ON/OFF
     - 1 Finger (Index): Volume Control - move hand left/right (0-100)
     - 2 Fingers (Peace): Brightness Control - move hand left/right (0-100)
     - 3 Fingers: Play/Pause toggle
@@ -50,7 +51,7 @@ class GestureController:
         
         # Thresholds
         self.hold_threshold = 15  # Frames to hold before triggering (~0.5 seconds at 30fps)
-        self.cooldown_duration = 90  # 3 seconds at 30fps (90 frames)
+        self.cooldown_duration = 45  # 1.5 seconds at 30fps (45 frames)
         
         # Y-position tracking for continuous controls (volume/brightness)
         self.last_y_positions = deque(maxlen=5)
@@ -92,6 +93,7 @@ class GestureController:
         if hands:
             self.hand_present = True
             hand = hands[0]  # Get first hand
+            
             fingers = self.detector.fingersUp(hand)  # Get which fingers are up [thumb, index, middle, ring, pinky]
             finger_count = fingers.count(1)
             
@@ -141,8 +143,12 @@ class GestureController:
         Returns:
             (gesture_type, value) tuple
         """
+        # 0 Fingers (Fist): Toggle gesture control
+        if finger_count == 0:
+            return ('toggle_gestures', None)
+        
         # 1 Finger: Volume Control (left to right = 0 to 100)
-        if finger_count == 1 and fingers[1] == 1:  # Only index finger
+        elif finger_count == 1 and fingers[1] == 1:  # Only index finger
             self.last_y_positions.append(x_percent)
             avg_x = int(np.mean(self.last_y_positions))
             return ('volume_control', avg_x)
@@ -184,15 +190,20 @@ class GestureController:
         if current_gesture.gesture_type in ['volume_control', 'brightness_control']:
             return current_gesture
         
-        # For toggle actions (play/pause, next, prev), use hold + cooldown
-        # Decrease cooldown counter
-        if self.cooldown_frames > 0:
+        # For toggle actions (play/pause, next, prev), use hold + cooldown per gesture
+        # Only block the SAME gesture from repeating, not different gestures
+        if self.cooldown_frames > 0 and current_gesture.gesture_type == self.last_triggered_gesture:
             self.cooldown_frames -= 1
             # Reset last triggered gesture when cooldown expires
             if self.cooldown_frames == 0:
                 self.last_triggered_gesture = None
-                print(f"[COOLDOWN] Ready for next gesture")
-            return None  # Still in cooldown, don't trigger
+                print(f"[COOLDOWN] {current_gesture.gesture_type} ready again")
+            return None  # Still in cooldown for this specific gesture
+        
+        # Different gesture - allow it immediately
+        if self.cooldown_frames > 0 and current_gesture.gesture_type != self.last_triggered_gesture:
+            self.cooldown_frames = 0  # Reset cooldown for new gesture
+            self.last_triggered_gesture = None
         
         # Check if same gesture is being held
         if current_gesture.gesture_type == self.last_gesture_type:
@@ -240,6 +251,7 @@ class GestureController:
         
         # Draw gesture type
         gesture_names = {
+            'toggle_gestures': 'Fist: Toggle Gestures',
             'volume_control': '1 Finger: Volume (←→)',
             'brightness_control': '2 Fingers: Brightness (←→)',
             'play_pause': '3 Fingers: Play/Pause',

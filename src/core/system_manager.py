@@ -53,6 +53,13 @@ class SystemManager:
         self.last_face_time = time.time()
         self.media_paused = False
         
+        # Gesture toggle state
+        self.gestures_enabled = settings.ENABLE_GESTURE_RECOGNITION
+        
+        # Store frame dimensions for UI elements
+        self.frame_width = settings.CAMERA_WIDTH
+        self.frame_height = settings.CAMERA_HEIGHT
+        
         # Performance tracking
         self.fps = 0.0
         self.processing_time = 0.0
@@ -89,6 +96,10 @@ class SystemManager:
                 logger.warning("Failed to start audio (continuing without it)")
         
         self.is_running = True
+        
+        # Create window for display
+        cv2.namedWindow(settings.WINDOW_NAME)
+        
         logger.info("✓ All systems started successfully")
         return True
     
@@ -114,38 +125,47 @@ class SystemManager:
         gesture_next_track = False
         gesture_prev_track = False
         
-        if settings.ENABLE_GESTURE_RECOGNITION and self.gesture_controller:
+        # Always detect gestures to allow toggle (fist) even when disabled
+        if self.gesture_controller:
             gestures = self.gesture_controller.detect_gestures(frame)
             
             # Get smoothed gesture for control
             smoothed_gesture = self.gesture_controller.get_smoothed_gesture()
             if smoothed_gesture:
-                # Gestures now provide adjustments, not overrides
-                if smoothed_gesture.gesture_type == 'volume_control' and smoothed_gesture.value is not None:
-                    gesture_adjustment_volume = smoothed_gesture.value
-                    # Only log if value changed significantly (>5%)
-                    if self.last_logged_volume is None or abs(gesture_adjustment_volume - self.last_logged_volume) > 5:
-                        print(f"[GESTURE] Volume: {gesture_adjustment_volume}%")
-                        self.last_logged_volume = gesture_adjustment_volume
-                    
-                elif smoothed_gesture.gesture_type == 'brightness_control' and smoothed_gesture.value is not None:
-                    gesture_adjustment_brightness = smoothed_gesture.value
-                    # Only log if value changed significantly (>5%)
-                    if self.last_logged_brightness is None or abs(gesture_adjustment_brightness - self.last_logged_brightness) > 5:
-                        print(f"[GESTURE] Brightness: {gesture_adjustment_brightness}%")
-                        self.last_logged_brightness = gesture_adjustment_brightness
-                    
-                elif smoothed_gesture.gesture_type == 'play_pause':
-                    gesture_play_pause_toggle = True
-                    print("✓ [GESTURE] Play/Pause triggered!")
-                    
-                elif smoothed_gesture.gesture_type == 'next_track':
-                    gesture_next_track = True
-                    print("✓ [GESTURE] Next Track triggered!")
-                    
-                elif smoothed_gesture.gesture_type == 'prev_track':
-                    gesture_prev_track = True
-                    print("✓ [GESTURE] Previous Track triggered!")
+                # Toggle gesture (fist) always works, even when gestures are disabled
+                if smoothed_gesture.gesture_type == 'toggle_gestures':
+                    # Toggle gesture control on/off
+                    self.gestures_enabled = not self.gestures_enabled
+                    status = "ON" if self.gestures_enabled else "OFF"
+                    print(f"✓ [GESTURE] Gesture Control toggled {status}!")
+                
+                # Other gestures only work when enabled
+                elif self.gestures_enabled:
+                    if smoothed_gesture.gesture_type == 'volume_control' and smoothed_gesture.value is not None:
+                        gesture_adjustment_volume = smoothed_gesture.value
+                        # Only log if value changed significantly (>5%)
+                        if self.last_logged_volume is None or abs(gesture_adjustment_volume - self.last_logged_volume) > 5:
+                            print(f"[GESTURE] Volume: {gesture_adjustment_volume}% → Setting to {gesture_adjustment_volume/100.0:.2f}")
+                            self.last_logged_volume = gesture_adjustment_volume
+                        
+                    elif smoothed_gesture.gesture_type == 'brightness_control' and smoothed_gesture.value is not None:
+                        gesture_adjustment_brightness = smoothed_gesture.value
+                        # Only log if value changed significantly (>5%)
+                        if self.last_logged_brightness is None or abs(gesture_adjustment_brightness - self.last_logged_brightness) > 5:
+                            print(f"[GESTURE] Brightness: {gesture_adjustment_brightness}%")
+                            self.last_logged_brightness = gesture_adjustment_brightness
+                        
+                    elif smoothed_gesture.gesture_type == 'play_pause':
+                        gesture_play_pause_toggle = True
+                        print("✓ [GESTURE] Play/Pause triggered!")
+                        
+                    elif smoothed_gesture.gesture_type == 'next_track':
+                        gesture_next_track = True
+                        print("✓ [GESTURE] Next Track triggered!")
+                        
+                    elif smoothed_gesture.gesture_type == 'prev_track':
+                        gesture_prev_track = True
+                        print("✓ [GESTURE] Previous Track triggered!")
         
         # Handle play/pause gesture toggle
         if gesture_play_pause_toggle:
@@ -231,6 +251,7 @@ class SystemManager:
             if gesture_adjustment_volume is not None:
                 # Use direct gesture control (convert 0-100 to 0-1)
                 gesture_volume = gesture_adjustment_volume / 100.0
+                print(f"[DEBUG] Applying gesture volume: {gesture_volume:.2f}")
                 self.volume_controller.set_volume(gesture_volume, smooth=True)
             else:
                 # Use distance-based control when no gesture
@@ -248,7 +269,7 @@ class SystemManager:
                 frame, faces, gestures, face_count, weighted_distance, ambient_light, 
                 audio_level, current_brightness, current_volume
             )
-            cv2.imshow('EADA Pro', display_frame)
+            cv2.imshow(settings.WINDOW_NAME, display_frame)
         
         # Update performance metrics
         self.processing_time = time.time() - start_time
@@ -265,8 +286,8 @@ class SystemManager:
         if faces and settings.SHOW_LANDMARKS:
             display_frame = self.face_detector.draw_faces(display_frame, faces)
         
-        # Draw gestures (only if enabled)
-        if gestures and settings.ENABLE_GESTURE_RECOGNITION and settings.SHOW_LANDMARKS:
+        # Draw gestures (only if enabled and gestures are on)
+        if gestures and settings.ENABLE_GESTURE_RECOGNITION and settings.SHOW_LANDMARKS and self.gestures_enabled:
             display_frame = self.gesture_controller.draw_gesture_info(display_frame, gestures)
         
         # Draw metrics overlay (simplified)
@@ -301,7 +322,51 @@ class SystemManager:
                     font_scale, color, thickness
                 )
         
+        # Draw gesture status indicator (top-right corner)
+        self._draw_gesture_status(display_frame)
+        
         return display_frame
+    
+    def _draw_gesture_status(self, frame):
+        """Draw gesture control status in top-right corner"""
+        # Status text position (top-right)
+        if self.gestures_enabled:
+            text = "Gestures: ON"
+            text_color = (0, 255, 0)  # Green
+            help_text = None
+        else:
+            text = "Gestures: OFF"
+            text_color = (0, 0, 255)  # Red
+            help_text = "Make FIST to turn ON"
+        
+        # Draw main status text with background
+        text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)[0]
+        text_x = frame.shape[1] - text_size[0] - 15
+        text_y = 25
+        
+        # Draw semi-transparent background
+        cv2.rectangle(frame, (text_x - 5, text_y - 20), 
+                     (text_x + text_size[0] + 5, text_y + 5), 
+                     (0, 0, 0), -1)
+        
+        # Draw text
+        cv2.putText(frame, text, (text_x, text_y),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 2)
+        
+        # Draw help text when gestures are OFF
+        if help_text:
+            help_size = cv2.getTextSize(help_text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)[0]
+            help_x = frame.shape[1] - help_size[0] - 15
+            help_y = 50
+            
+            # Background
+            cv2.rectangle(frame, (help_x - 5, help_y - 18), 
+                         (help_x + help_size[0] + 5, help_y + 3), 
+                         (0, 0, 0), -1)
+            
+            # Text
+            cv2.putText(frame, help_text, (help_x, help_y),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)  # Yellow color
     
     def run(self):
         """Main system loop"""
