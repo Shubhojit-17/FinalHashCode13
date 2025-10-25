@@ -17,8 +17,8 @@ LOGS_DIR.mkdir(exist_ok=True)
 
 # ==================== Camera Settings ====================
 CAMERA_INDEX = 0
-CAMERA_WIDTH = 1280
-CAMERA_HEIGHT = 720
+CAMERA_WIDTH = 960  # Reduced from 1280 for better FPS
+CAMERA_HEIGHT = 540  # Reduced from 720 for better FPS
 CAMERA_FPS = 30
 
 # ==================== Face Detection Settings ====================
@@ -43,7 +43,7 @@ PRESENCE_RESUME_DELAY = 2.0  # seconds - wait before resuming media
 
 # ==================== Gesture Recognition ====================
 GESTURE_DETECTION_CONFIDENCE = 0.7
-GESTURE_SMOOTHING_WINDOW = 5  # frames
+GESTURE_SMOOTHING_WINDOW = 10  # frames - increased for less responsiveness
 
 # Gesture thresholds
 THUMB_INDEX_MIN_DISTANCE = 0.02  # normalized

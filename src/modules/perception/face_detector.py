@@ -55,14 +55,16 @@ class FaceDetector:
         self.last_faces: List[FaceData] = []
         self.frame_width = 0
         self.frame_height = 0
+        self.frame_count = 0
+        self.skip_mesh_frames = 0  # Counter for skipping expensive Face Mesh processing
         
         logger.info("Face detector initialized")
     
     def detect_faces(self, frame: np.ndarray) -> List[FaceData]:
         """
-        Detect faces in frame using two-stage approach:
+        Detect faces in frame using optimized two-stage approach:
         1. Face Detection for long-range detection
-        2. Face Mesh on detected regions for accurate distance
+        2. Face Mesh on detected regions for accurate distance (every 3rd frame)
         
         Args:
             frame: BGR image from camera
@@ -73,13 +75,21 @@ class FaceDetector:
         if frame is None:
             return []
         
+        self.frame_count += 1
+        
         # Store frame dimensions
         self.frame_height, self.frame_width = frame.shape[:2]
         
-        # Convert to RGB for MediaPipe
+        # If we have faces and it's not time for full detection, return cached faces
+        # This optimization runs full detection every 3 frames, uses tracking for others
+        if self.last_faces and self.skip_mesh_frames > 0:
+            self.skip_mesh_frames -= 1
+            return self.last_faces
+        
+        # Convert to RGB for MediaPipe (do this once)
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
-        # Stage 1: Face Detection (long-range)
+        # Stage 1: Face Detection (long-range) - Fast
         detection_results = self.face_detection.process(frame_rgb)
         detected_bboxes = []
         
@@ -95,7 +105,13 @@ class FaceDetector:
                 if w >= settings.MIN_FACE_SIZE and h >= settings.MIN_FACE_SIZE:
                     detected_bboxes.append((x, y, w, h))
         
-        # Stage 2: Face Mesh on detected regions
+        # If no faces detected, clear cache and return
+        if not detected_bboxes:
+            self.last_faces = []
+            self.skip_mesh_frames = 0
+            return []
+        
+        # Stage 2: Face Mesh on detected regions - Expensive, so skip frames
         faces = []
         for bbox in detected_bboxes:
             x, y, w, h = bbox
@@ -125,6 +141,8 @@ class FaceDetector:
                         faces.append(face_data)
         
         self.last_faces = faces
+        # Skip next 2 frames of expensive Face Mesh processing (use cached results)
+        self.skip_mesh_frames = 2
         return faces
     
     def _process_face_mesh_cropped(self, face_landmarks, original_bbox, crop_info) -> Optional[FaceData]:
