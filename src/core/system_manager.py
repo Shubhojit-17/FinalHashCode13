@@ -153,13 +153,9 @@ class SystemManager:
                         
                     elif smoothed_gesture.gesture_type == 'brightness_control' and smoothed_gesture.value is not None:
                         gesture_adjustment_brightness = smoothed_gesture.value
-                        # Scale from 0-100 hand position to full brightness range
-                        # Left (0) = min brightness, Right (100) = max brightness
-                        scaled_brightness = int((gesture_adjustment_brightness / 100.0) * 100)  # 0-100
-                        gesture_adjustment_brightness = scaled_brightness
                         # Only log if value changed significantly (>5%)
                         if self.last_logged_brightness is None or abs(gesture_adjustment_brightness - self.last_logged_brightness) > 5:
-                            print(f"[GESTURE] Brightness: {gesture_adjustment_brightness}% → Setting to {gesture_adjustment_brightness}")
+                            print(f"[GESTURE] Brightness: {gesture_adjustment_brightness}%")
                             self.last_logged_brightness = gesture_adjustment_brightness
                         
                     elif smoothed_gesture.gesture_type == 'play_pause':

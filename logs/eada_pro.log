@@ -15769,3 +15769,151 @@ AttributeError: module 'src.config.settings' has no attribute 'WINDOW_NAME'
 2025-10-25 23:07:59,231 - src.modules.perception.camera_capture - INFO - Camera 0 released
 2025-10-25 23:07:59,231 - src.modules.perception.audio_capture - INFO - Audio capture stopped
 2025-10-25 23:07:59,231 - src.modules.perception.face_detector - INFO - Face detector released
+2025-10-25 23:12:35,133 - src.main - INFO - ============================================================
+2025-10-25 23:12:35,133 - src.main - INFO - EADA Pro - Edge AI Display Adaptation System
+2025-10-25 23:12:35,133 - src.main - INFO - Version: 1.0.0
+2025-10-25 23:12:35,133 - src.main - INFO - ============================================================
+2025-10-25 23:12:35,133 - src.main - INFO - Log file: D:\Hashcode\logs\eada_pro.log
+2025-10-25 23:12:35,133 - src.main - INFO - System Configuration:
+2025-10-25 23:12:35,133 - src.main - INFO -   Camera: 960x540 @ 30 FPS
+2025-10-25 23:12:35,133 - src.main - INFO -   Face Detection: True
+2025-10-25 23:12:35,134 - src.main - INFO -   Gesture Recognition: True
+2025-10-25 23:12:35,134 - src.main - INFO -   Audio Monitoring: True
+2025-10-25 23:12:35,134 - src.main - INFO -   Brightness Control: True
+2025-10-25 23:12:35,134 - src.main - INFO -   Volume Control: True
+2025-10-25 23:12:35,134 - src.main - INFO -   Weighted Adaptation: True
+2025-10-25 23:12:35,134 - src.main - INFO -   Face Counting: True
+2025-10-25 23:12:35,135 - src.core.system_manager - INFO - ============================================================
+2025-10-25 23:12:35,135 - src.core.system_manager - INFO - Initializing EADA Pro System
+2025-10-25 23:12:35,135 - src.core.system_manager - INFO - ============================================================
+2025-10-25 23:12:35,147 - src.modules.perception.face_detector - INFO - Face detector initialized
+2025-10-25 23:12:35,147 - src.modules.perception.face_counter - INFO - Face counter initialized
+2025-10-25 23:12:35,154 - src.modules.perception.gesture_controller - INFO - CVZone Gesture Controller initialized - 6 distinct gestures
+2025-10-25 23:12:35,227 - src.modules.adaptation.brightness_controller - INFO - Brightness controller initialized at 39%
+2025-10-25 23:12:35,245 - src.modules.adaptation.volume_controller - INFO - Volume controller initialized at 56%
+2025-10-25 23:12:35,246 - src.modules.adaptation.weighted_adapter - INFO - Weighted adapter initialized
+2025-10-25 23:12:35,246 - src.modules.intelligence.environment_monitor - INFO - Environment monitor initialized
+2025-10-25 23:12:35,246 - src.modules.intelligence.audio_analyzer - INFO - Audio analyzer initialized
+2025-10-25 23:12:35,246 - src.core.system_manager - INFO - System manager initialized successfully
+2025-10-25 23:12:35,246 - src.core.system_manager - INFO - Starting EADA Pro system...
+2025-10-25 23:12:53,349 - src.modules.perception.camera_capture - INFO - Camera 0 started successfully
+2025-10-25 23:12:53,349 - src.modules.perception.camera_capture - INFO - Resolution: 960x540
+2025-10-25 23:12:53,349 - src.modules.perception.camera_capture - INFO - FPS: 30
+2025-10-25 23:12:53,350 - src.modules.perception.audio_capture - INFO - Available audio devices: 77
+2025-10-25 23:12:53,350 - src.modules.perception.audio_capture - INFO - Using default audio device: Microphone Array (Realtek(R) Au
+2025-10-25 23:12:53,350 - src.modules.perception.audio_capture - INFO - Audio capture started successfully
+2025-10-25 23:12:53,350 - src.modules.perception.audio_capture - INFO - Sample rate: 44100 Hz
+2025-10-25 23:12:53,350 - src.modules.perception.audio_capture - INFO - Channels: 1
+2025-10-25 23:12:53,390 - src.core.system_manager - INFO - ============================================================
+2025-10-25 23:12:53,390 - src.core.system_manager - INFO - EADA Pro is running!
+2025-10-25 23:12:53,390 - src.core.system_manager - INFO - Press 'q' to quit
+2025-10-25 23:12:53,390 - src.core.system_manager - INFO - ============================================================
+2025-10-25 23:12:54,313 - src.modules.adaptation.brightness_controller - INFO - First distance measurement - starting stability timer
+2025-10-25 23:12:54,313 - src.modules.adaptation.volume_controller - INFO - First distance measurement - starting stability timer
+2025-10-25 23:12:55,814 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 75.8cm for 1.5s - updating brightness
+2025-10-25 23:12:55,814 - src.modules.adaptation.brightness_controller - INFO - Distance: 75.8cm -> Target brightness: 39%
+2025-10-25 23:12:55,814 - src.modules.adaptation.volume_controller - INFO - Distance stable at 75.8cm for 1.5s - updating volume
+2025-10-25 23:12:55,814 - src.modules.adaptation.volume_controller - INFO - Distance: 75.8cm -> Target volume: 56%
+2025-10-25 23:13:59,918 - src.modules.adaptation.volume_controller - INFO - Distance stable at 81.0cm for 7.1s - updating volume
+2025-10-25 23:13:59,918 - src.modules.adaptation.volume_controller - INFO - Distance: 81.0cm -> Target volume: 57%
+2025-10-25 23:14:18,410 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 83.5cm for 1.5s - updating brightness
+2025-10-25 23:14:18,410 - src.modules.adaptation.brightness_controller - INFO - Distance: 83.5cm -> Target brightness: 41%
+2025-10-25 23:14:20,580 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 72.1cm for 1.5s - updating brightness
+2025-10-25 23:14:20,580 - src.modules.adaptation.brightness_controller - INFO - Distance: 72.1cm -> Target brightness: 39%
+2025-10-25 23:14:21,108 - src.modules.adaptation.volume_controller - INFO - Distance stable at 71.0cm for 1.5s - updating volume
+2025-10-25 23:14:21,108 - src.modules.adaptation.volume_controller - INFO - Distance: 71.0cm -> Target volume: 55%
+2025-10-25 23:14:32,398 - src.modules.adaptation.volume_controller - INFO - Distance stable at 76.6cm for 1.7s - updating volume
+2025-10-25 23:14:32,398 - src.modules.adaptation.volume_controller - INFO - Distance: 76.6cm -> Target volume: 56%
+2025-10-25 23:14:37,389 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 78.1cm for 1.5s - updating brightness
+2025-10-25 23:14:37,389 - src.modules.adaptation.brightness_controller - INFO - Distance: 78.1cm -> Target brightness: 40%
+2025-10-25 23:14:44,216 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 39.7cm for 1.5s - updating brightness
+2025-10-25 23:14:44,216 - src.modules.adaptation.brightness_controller - INFO - Distance: 39.7cm -> Target brightness: 33%
+2025-10-25 23:14:44,282 - src.modules.adaptation.volume_controller - INFO - Distance stable at 39.7cm for 1.6s - updating volume
+2025-10-25 23:14:44,283 - src.modules.adaptation.volume_controller - INFO - Distance: 39.7cm -> Target volume: 42%
+2025-10-25 23:14:49,181 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 82.4cm for 1.6s - updating brightness
+2025-10-25 23:14:49,181 - src.modules.adaptation.brightness_controller - INFO - Distance: 82.4cm -> Target brightness: 41%
+2025-10-25 23:14:49,243 - src.modules.adaptation.volume_controller - INFO - Distance stable at 82.4cm for 1.7s - updating volume
+2025-10-25 23:14:49,244 - src.modules.adaptation.volume_controller - INFO - Distance: 82.4cm -> Target volume: 58%
+2025-10-25 23:14:54,195 - src.core.system_manager - INFO - Gesture: Next Track
+2025-10-25 23:14:54,197 - src.core.system_manager - INFO - Next track
+2025-10-25 23:14:59,274 - src.core.system_manager - INFO - Gesture: Next Track
+2025-10-25 23:14:59,276 - src.core.system_manager - INFO - Next track
+2025-10-25 23:15:03,648 - src.core.system_manager - INFO - Gesture: Next Track
+2025-10-25 23:15:03,649 - src.core.system_manager - INFO - Next track
+2025-10-25 23:15:07,213 - src.core.system_manager - INFO - Gesture: Previous Track
+2025-10-25 23:15:07,214 - src.core.system_manager - INFO - Previous track
+2025-10-25 23:15:11,686 - src.core.system_manager - INFO - Gesture: Next Track
+2025-10-25 23:15:11,688 - src.core.system_manager - INFO - Next track
+2025-10-25 23:15:15,023 - src.core.system_manager - INFO - Gesture: Next Track
+2025-10-25 23:15:15,024 - src.core.system_manager - INFO - Next track
+2025-10-25 23:15:19,237 - src.core.system_manager - INFO - Gesture: Next Track
+2025-10-25 23:15:19,238 - src.core.system_manager - INFO - Next track
+2025-10-25 23:15:22,036 - src.core.system_manager - INFO - Gesture: Previous Track
+2025-10-25 23:15:22,037 - src.core.system_manager - INFO - Previous track
+2025-10-25 23:15:26,669 - src.core.system_manager - INFO - Quit command received
+2025-10-25 23:15:26,669 - src.core.system_manager - INFO - Stopping EADA Pro system...
+2025-10-25 23:15:27,180 - src.modules.perception.camera_capture - INFO - Camera 0 released
+2025-10-25 23:15:27,180 - src.modules.perception.audio_capture - INFO - Audio capture stopped
+2025-10-25 23:15:27,189 - src.modules.perception.face_detector - INFO - Face detector released
+2025-10-25 23:15:27,214 - src.core.system_manager - INFO - System stopped successfully
+2025-10-25 23:15:27,215 - src.modules.perception.camera_capture - INFO - Camera 0 released
+2025-10-25 23:15:27,215 - src.modules.perception.audio_capture - INFO - Audio capture stopped
+2025-10-25 23:15:27,215 - src.modules.perception.face_detector - INFO - Face detector released
+2025-10-25 23:15:50,139 - src.main - INFO - ============================================================
+2025-10-25 23:15:50,139 - src.main - INFO - EADA Pro - Edge AI Display Adaptation System
+2025-10-25 23:15:50,139 - src.main - INFO - Version: 1.0.0
+2025-10-25 23:15:50,139 - src.main - INFO - ============================================================
+2025-10-25 23:15:50,139 - src.main - INFO - Log file: D:\Hashcode\logs\eada_pro.log
+2025-10-25 23:15:50,139 - src.main - INFO - System Configuration:
+2025-10-25 23:15:50,139 - src.main - INFO -   Camera: 960x540 @ 30 FPS
+2025-10-25 23:15:50,139 - src.main - INFO -   Face Detection: True
+2025-10-25 23:15:50,139 - src.main - INFO -   Gesture Recognition: True
+2025-10-25 23:15:50,139 - src.main - INFO -   Audio Monitoring: True
+2025-10-25 23:15:50,139 - src.main - INFO -   Brightness Control: True
+2025-10-25 23:15:50,139 - src.main - INFO -   Volume Control: True
+2025-10-25 23:15:50,139 - src.main - INFO -   Weighted Adaptation: True
+2025-10-25 23:15:50,139 - src.main - INFO -   Face Counting: True
+2025-10-25 23:15:50,141 - src.core.system_manager - INFO - ============================================================
+2025-10-25 23:15:50,141 - src.core.system_manager - INFO - Initializing EADA Pro System
+2025-10-25 23:15:50,141 - src.core.system_manager - INFO - ============================================================
+2025-10-25 23:15:50,153 - src.modules.perception.face_detector - INFO - Face detector initialized
+2025-10-25 23:15:50,153 - src.modules.perception.face_counter - INFO - Face counter initialized
+2025-10-25 23:15:50,162 - src.modules.perception.gesture_controller - INFO - CVZone Gesture Controller initialized - 6 distinct gestures
+2025-10-25 23:15:50,234 - src.modules.adaptation.brightness_controller - INFO - Brightness controller initialized at 40%
+2025-10-25 23:15:50,253 - src.modules.adaptation.volume_controller - INFO - Volume controller initialized at 58%
+2025-10-25 23:15:50,253 - src.modules.adaptation.weighted_adapter - INFO - Weighted adapter initialized
+2025-10-25 23:15:50,253 - src.modules.intelligence.environment_monitor - INFO - Environment monitor initialized
+2025-10-25 23:15:50,253 - src.modules.intelligence.audio_analyzer - INFO - Audio analyzer initialized
+2025-10-25 23:15:50,253 - src.core.system_manager - INFO - System manager initialized successfully
+2025-10-25 23:15:50,253 - src.core.system_manager - INFO - Starting EADA Pro system...
+2025-10-25 23:16:08,003 - src.modules.perception.camera_capture - INFO - Camera 0 started successfully
+2025-10-25 23:16:08,003 - src.modules.perception.camera_capture - INFO - Resolution: 960x540
+2025-10-25 23:16:08,003 - src.modules.perception.camera_capture - INFO - FPS: 30
+2025-10-25 23:16:08,004 - src.modules.perception.audio_capture - INFO - Available audio devices: 77
+2025-10-25 23:16:08,004 - src.modules.perception.audio_capture - INFO - Using default audio device: Microphone Array (Realtek(R) Au
+2025-10-25 23:16:08,004 - src.modules.perception.audio_capture - INFO - Audio capture started successfully
+2025-10-25 23:16:08,004 - src.modules.perception.audio_capture - INFO - Sample rate: 44100 Hz
+2025-10-25 23:16:08,004 - src.modules.perception.audio_capture - INFO - Channels: 1
+2025-10-25 23:16:08,047 - src.core.system_manager - INFO - ============================================================
+2025-10-25 23:16:08,047 - src.core.system_manager - INFO - EADA Pro is running!
+2025-10-25 23:16:08,047 - src.core.system_manager - INFO - Press 'q' to quit
+2025-10-25 23:16:08,047 - src.core.system_manager - INFO - ============================================================
+2025-10-25 23:16:08,894 - src.modules.adaptation.brightness_controller - INFO - First distance measurement - starting stability timer
+2025-10-25 23:16:08,894 - src.modules.adaptation.volume_controller - INFO - First distance measurement - starting stability timer
+2025-10-25 23:16:10,483 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 75.8cm for 1.6s - updating brightness
+2025-10-25 23:16:10,484 - src.modules.adaptation.brightness_controller - INFO - Distance: 75.8cm -> Target brightness: 39%
+2025-10-25 23:16:10,484 - src.modules.adaptation.volume_controller - INFO - Distance stable at 75.8cm for 1.6s - updating volume
+2025-10-25 23:16:10,484 - src.modules.adaptation.volume_controller - INFO - Distance: 75.8cm -> Target volume: 56%
+2025-10-25 23:16:14,605 - src.core.system_manager - INFO - Gesture: Next Track
+2025-10-25 23:16:14,606 - src.core.system_manager - INFO - Next track
+2025-10-25 23:16:18,466 - src.core.system_manager - INFO - Gesture: Next Track
+2025-10-25 23:16:18,468 - src.core.system_manager - INFO - Next track
+2025-10-25 23:16:20,698 - src.core.system_manager - INFO - Quit command received
+2025-10-25 23:16:20,698 - src.core.system_manager - INFO - Stopping EADA Pro system...
+2025-10-25 23:16:21,215 - src.modules.perception.camera_capture - INFO - Camera 0 released
+2025-10-25 23:16:21,215 - src.modules.perception.audio_capture - INFO - Audio capture stopped
+2025-10-25 23:16:21,224 - src.modules.perception.face_detector - INFO - Face detector released
+2025-10-25 23:16:21,251 - src.core.system_manager - INFO - System stopped successfully
+2025-10-25 23:16:21,251 - src.modules.perception.camera_capture - INFO - Camera 0 released
+2025-10-25 23:16:21,251 - src.modules.perception.audio_capture - INFO - Audio capture stopped
+2025-10-25 23:16:21,251 - src.modules.perception.face_detector - INFO - Face detector released

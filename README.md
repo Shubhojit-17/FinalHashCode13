@@ -141,25 +141,23 @@ WRIST_MOVEMENT_THRESHOLD = 0.05  # Threshold for brightness control
 
 EADA Pro includes three default gesture mappings:
 
-#### 1. Volume Control (1 Finger - Index)
-- **Gesture**: Show 1 finger (index finger only)
-- **Control**: Raise finger higher on screen = higher volume, lower on screen = lower volume
-- **Range**: Bottom of screen = 100% volume, Top of screen = 0% volume
-- **Mapping**: Vertical position from 0-100% of screen height
+#### 1. Volume Control (Thumb-Index Pinch)
+- **Gesture**: Pinch thumb and index finger together/apart
+- **Range**: 2-15cm normalized distance
+- **Mapping**: Closer pinch = lower volume, wider gap = higher volume
 - **Priority**: Overrides distance-based volume control
-- **Smoothing**: Applied for smooth transitions
+- **Smoothing**: 5-frame moving average
 
-#### 2. Brightness Control (2 Fingers - Index + Middle)
-- **Gesture**: Show 2 fingers (index + middle finger)
-- **Control**: Raise fingers higher on screen = higher brightness, lower on screen = lower brightness
-- **Range**: Bottom of screen = 100% brightness, Top of screen = 10% brightness
-- **Mapping**: Vertical position from 0-100% of screen height
+#### 2. Brightness Control (Wrist Y Position)
+- **Gesture**: Move hand up/down
+- **Range**: Vertical position from 20-80% of frame
+- **Mapping**: Higher hand = brighter, lower hand = dimmer
 - **Priority**: Overrides distance-based brightness control
-- **Threshold**: Responds to vertical position changes
+- **Threshold**: ±10% deadzone around center
 
-#### 3. Play/Pause Toggle (3 Fingers - Index + Middle + Ring)
-- **Gesture**: Show 3 fingers (index + middle + ring)
-- **Detection**: All three fingers extended
+#### 3. Play/Pause Toggle (Open Palm)
+- **Gesture**: Open palm with all fingers extended
+- **Detection**: At least 3 fingers extended above MCP joints
 - **Activation**: Hold for 10 frames (~0.3s)
 - **Action**: Toggles media playback state
 - **Cooldown**: 1.5 seconds (45 frames) - continues even when hand is removed
@@ -579,14 +577,12 @@ See the following files for detailed information:
 
 ### Gesture Controls
 
-| Gesture | Action | Control | Notes |
-|---------|--------|---------|-------|
-| **0 fingers (Fist)** | Toggle Gestures | - | Enable/disable all gestures |
-| **1 finger (Index)** | Volume | Raise hand up = quiet, down = loud | 0-100% based on vertical position |
-| **2 fingers (Index+Middle)** | Brightness | Raise hand up = dim, down = bright | 10-100% based on vertical position |
-| **3 fingers (Index+Middle+Ring)** | Play/Pause | Hold gesture | Toggle media playback, 1.5s cooldown |
-| **4 fingers** | Next Track | Hold gesture | Skip to next track, 1.5s cooldown |
-| **5 fingers (All)** | Previous Track | Hold gesture | Go to previous track, 1.5s cooldown |
+| Gesture | Action | Range | Notes |
+|---------|--------|-------|-------|
+| Thumb-Index Pinch | Volume | 2-15cm | Closer = quieter |
+| Wrist Up/Down | Brightness | 20-80% frame | Higher = brighter |
+| Open Palm (hold 0.3s) | Play/Pause | - | Toggle playback, 1.5s cooldown |
+| Fist (hold 0.3s) | Toggle Gestures | - | Enable/disable all gestures |
 
 ### Distance-Based Controls
 

@@ -99,7 +99,7 @@ class GestureController:
             fingers = self.detector.fingersUp(hand)  # Get which fingers are up [thumb, index, middle, ring, pinky]
             finger_count = fingers.count(1)
             
-            # Get hand center position (landmarks)
+            # Get hand center position (both X and Y)
             lmList = hand['lmList']  # List of 21 landmarks
             hand_center_x = lmList[9][0]  # Middle finger MCP joint X coordinate
             hand_center_y = lmList[9][1]  # Middle finger MCP joint Y coordinate
@@ -107,17 +107,16 @@ class GestureController:
             frame_width = frame.shape[1]
             frame_height = frame.shape[0]
             
-            # Convert to normalized positions (0-100)
-            # X: Left (0) to Right (100)
+            # Calculate horizontal position (0=left, 100=right)
             x_percent = int((hand_center_x / frame_width) * 100)
             x_percent = max(0, min(100, x_percent))
             
-            # Y: Top (0) to Bottom (100) - but invert for intuitive control
-            # Lower hand (higher Y) = higher volume/brightness
+            # Calculate vertical position (0=top, 100=bottom, but inverted for intuitive control)
+            # Top of screen = low value, Bottom of screen = high value
             y_percent = int(((frame_height - hand_center_y) / frame_height) * 100)
             y_percent = max(0, min(100, y_percent))
             
-            # Classify gesture based on finger count
+            # Classify gesture based on finger count and position
             gesture_type, value = self._classify_by_fingers(finger_count, fingers, x_percent, y_percent)
             
             if gesture_type:
@@ -146,7 +145,7 @@ class GestureController:
     
     def _classify_by_fingers(self, finger_count: int, fingers: List[int], x_percent: int, y_percent: int) -> tuple:
         """
-        Classify gesture based on number of fingers up
+        Classify gesture based on number of fingers up and hand position
         
         Args:
             finger_count: Number of fingers extended
@@ -161,14 +160,14 @@ class GestureController:
         if finger_count == 0:
             return ('toggle_gestures', None)
         
-        # 1 Finger: Volume Control (based on vertical position: bottom=loud, top=quiet)
+        # 1 Finger: Volume Control based on vertical position
+        # Top (y=0) = 0% volume, Bottom (y=100) = 100% volume
         elif finger_count == 1 and fingers[1] == 1:  # Only index finger
-            # Use vertical position for volume (0-100 from top to bottom)
             return ('volume_control', y_percent)
         
-        # 2 Fingers: Brightness Control (based on vertical position: bottom=bright, top=dim)
+        # 2 Fingers: Brightness Control based on vertical position
+        # Top (y=0) = 10% brightness, Bottom (y=100) = 100% brightness
         elif finger_count == 2 and fingers[1] == 1 and fingers[2] == 1:  # Index + Middle
-            # Use vertical position for brightness (0-100 from top to bottom)
             return ('brightness_control', y_percent)
         
         # 3 Fingers: Play/Pause

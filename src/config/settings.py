@@ -61,10 +61,10 @@ BACKGROUND_NOISE_THRESHOLD = 0.01  # RMS threshold
 TARGET_SNR_DB = 17.5  # Target Signal-to-Noise ratio (15-20dB)
 
 # ==================== Brightness Control ====================
-BRIGHTNESS_MIN = 10  # Allow lower brightness for gesture control
+BRIGHTNESS_MIN = 20
 BRIGHTNESS_MAX = 100
-BRIGHTNESS_STEP = 1  # Reduced from 2 for finer control
-BRIGHTNESS_SMOOTHING = 0.2  # Exponential smoothing factor
+BRIGHTNESS_STEP = 2  # Minimum change threshold
+BRIGHTNESS_SMOOTHING = 0.3  # Exponential smoothing factor
 
 # Ambient light adaptation
 AMBIENT_LIGHT_SAMPLES = 10  # Number of samples to average
