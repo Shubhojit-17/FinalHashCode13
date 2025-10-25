@@ -61,7 +61,7 @@ BACKGROUND_NOISE_THRESHOLD = 0.01  # RMS threshold
 TARGET_SNR_DB = 17.5  # Target Signal-to-Noise ratio (15-20dB)
 
 # ==================== Brightness Control ====================
-BRIGHTNESS_MIN = 10  # Lower minimum for gesture control
+BRIGHTNESS_MIN = 0  # Allow full range for gesture control
 BRIGHTNESS_MAX = 100
 BRIGHTNESS_STEP = 1  # Reduced for smoother transitions
 BRIGHTNESS_SMOOTHING = 0.05  # Much lower for faster response to gestures
@@ -84,7 +84,7 @@ DISTANCE_HISTORY_WINDOW = 15  # frames for distance smoothing (~0.5s at 30fps)
 DISTANCE_STD_THRESHOLD = 0.05  # meters - max std dev for "stable"
 
 # ==================== Volume Control ====================
-VOLUME_MIN = 0.15
+VOLUME_MIN = 0.0  # Allow full range for gesture control
 VOLUME_MAX = 1.0
 VOLUME_STEP = 0.01  # Reduced from 0.02 for smoother transitions
 VOLUME_SMOOTHING = 0.05  # Much lower for faster response to gestures

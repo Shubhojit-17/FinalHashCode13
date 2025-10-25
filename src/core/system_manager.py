@@ -132,43 +132,34 @@ class SystemManager:
             
             gestures = self.gesture_controller.detect_gestures(frame)
             
-            # Get smoothed gesture for control
-            smoothed_gesture = self.gesture_controller.get_smoothed_gesture()
-            if smoothed_gesture:
-                # Toggle gesture (fist) always works, even when gestures are disabled
-                if smoothed_gesture.gesture_type == 'toggle_gestures':
-                    # Toggle gesture control on/off
-                    self.gestures_enabled = not self.gestures_enabled
-                    status = "ON" if self.gestures_enabled else "OFF"
-                    print(f"✓ [GESTURE] Gesture Control toggled {status}!")
+            # Process gestures directly for continuous controls
+            for gesture in gestures:
+                if gesture.gesture_type == 'toggle_gestures':
+                    # Toggle gesture (fist) always works
+                    # The gesture controller toggles its own state, we need to sync
+                    self.gestures_enabled = self.gesture_controller.is_active()
                 
-                # Other gestures only work when enabled
                 elif self.gestures_enabled:
-                    if smoothed_gesture.gesture_type == 'volume_control' and smoothed_gesture.value is not None:
-                        gesture_adjustment_volume = smoothed_gesture.value
+                    if gesture.gesture_type == 'volume_control' and gesture.value is not None:
+                        gesture_adjustment_volume = gesture.value
                         # Only log if value changed significantly (>5%)
                         if self.last_logged_volume is None or abs(gesture_adjustment_volume - self.last_logged_volume) > 5:
-                            print(f"[GESTURE] Volume: {gesture_adjustment_volume}% → Setting to {gesture_adjustment_volume/100.0:.2f}")
                             self.last_logged_volume = gesture_adjustment_volume
                         
-                    elif smoothed_gesture.gesture_type == 'brightness_control' and smoothed_gesture.value is not None:
-                        gesture_adjustment_brightness = smoothed_gesture.value
+                    elif gesture.gesture_type == 'brightness_control' and gesture.value is not None:
+                        gesture_adjustment_brightness = gesture.value
                         # Only log if value changed significantly (>5%)
                         if self.last_logged_brightness is None or abs(gesture_adjustment_brightness - self.last_logged_brightness) > 5:
-                            print(f"[GESTURE] Brightness: {gesture_adjustment_brightness}%")
                             self.last_logged_brightness = gesture_adjustment_brightness
                         
-                    elif smoothed_gesture.gesture_type == 'play_pause':
+                    elif gesture.gesture_type == 'play_pause':
                         gesture_play_pause_toggle = True
-                        print("✓ [GESTURE] Play/Pause triggered!")
                         
-                    elif smoothed_gesture.gesture_type == 'next_track':
+                    elif gesture.gesture_type == 'next_track':
                         gesture_next_track = True
-                        print("✓ [GESTURE] Next Track triggered!")
                         
-                    elif smoothed_gesture.gesture_type == 'prev_track':
+                    elif gesture.gesture_type == 'prev_track':
                         gesture_prev_track = True
-                        print("✓ [GESTURE] Previous Track triggered!")
         
         # Handle play/pause gesture toggle
         if gesture_play_pause_toggle:
@@ -243,8 +234,8 @@ class SystemManager:
         # Apply brightness control - blend distance-based with gesture adjustment
         if settings.ENABLE_BRIGHTNESS_CONTROL and len(faces) > 0:
             if gesture_adjustment_brightness is not None:
-                # Use direct gesture control (value is already 0-100)
-                self.brightness_controller.set_brightness(int(gesture_adjustment_brightness), smooth=True)
+                # Use direct gesture control (value is already 0-100) - no smoothing
+                self.brightness_controller.set_brightness(int(gesture_adjustment_brightness), smooth=False)
             else:
                 # Use distance-based control when no gesture
                 self.brightness_controller.adapt_to_distance(weighted_distance)
@@ -252,10 +243,9 @@ class SystemManager:
         # Apply volume control - blend distance-based with gesture adjustment
         if settings.ENABLE_VOLUME_CONTROL and not self.media_paused and len(faces) > 0:
             if gesture_adjustment_volume is not None:
-                # Use direct gesture control (convert 0-100 to 0-1)
+                # Use direct gesture control (convert 0-100 to 0-1) - no smoothing
                 gesture_volume = gesture_adjustment_volume / 100.0
-                print(f"[DEBUG] Applying gesture volume: {gesture_volume:.2f}")
-                self.volume_controller.set_volume(gesture_volume, smooth=True)
+                self.volume_controller.set_volume(gesture_volume, smooth=False)
             else:
                 # Use distance-based control when no gesture
                 self.volume_controller.adapt_to_distance(weighted_distance)
@@ -291,7 +281,9 @@ class SystemManager:
         
         # Draw gestures (only if enabled and gestures are on)
         if gestures and settings.ENABLE_GESTURE_RECOGNITION and settings.SHOW_LANDMARKS and self.gestures_enabled:
-            display_frame = self.gesture_controller.draw_gesture_info(display_frame, gestures)
+            display_frame = self.gesture_controller.draw_gesture_info(
+                display_frame, gestures, volume, brightness
+            )
         
         # Draw metrics overlay (simplified)
         if settings.SHOW_METRICS:
