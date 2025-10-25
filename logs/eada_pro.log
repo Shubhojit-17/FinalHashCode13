@@ -16903,3 +16903,288 @@ AttributeError: 'GestureController' object has no attribute 'release'
 2025-10-25 23:23:26,113 - src.modules.perception.audio_capture - INFO - Audio capture stopped
 2025-10-25 23:23:26,116 - src.modules.perception.face_detector - INFO - Face detector released
 2025-10-25 23:23:26,124 - src.core.system_manager - INFO - System stopped successfully
+2025-10-26 01:18:57,611 - src.main - INFO - ============================================================
+2025-10-26 01:18:57,611 - src.main - INFO - EADA Pro - Edge AI Display Adaptation System
+2025-10-26 01:18:57,611 - src.main - INFO - Version: 1.0.0
+2025-10-26 01:18:57,612 - src.main - INFO - ============================================================
+2025-10-26 01:18:57,612 - src.main - INFO - Log file: /Users/tanmaypatil/MCA/Mac final/FinalHashCode13/logs/eada_pro.log
+2025-10-26 01:18:57,612 - src.main - INFO - System Configuration:
+2025-10-26 01:18:57,612 - src.main - INFO -   Camera: 960x540 @ 30 FPS
+2025-10-26 01:18:57,612 - src.main - INFO -   Face Detection: True
+2025-10-26 01:18:57,612 - src.main - INFO -   Gesture Recognition: True
+2025-10-26 01:18:57,612 - src.main - INFO -   Audio Monitoring: True
+2025-10-26 01:18:57,612 - src.main - INFO -   Brightness Control: True
+2025-10-26 01:18:57,612 - src.main - INFO -   Volume Control: True
+2025-10-26 01:18:57,612 - src.main - INFO -   Weighted Adaptation: True
+2025-10-26 01:18:57,612 - src.main - INFO -   Face Counting: True
+2025-10-26 01:18:57,612 - src.core.system_manager - INFO - ============================================================
+2025-10-26 01:18:57,612 - src.core.system_manager - INFO - Initializing EADA Pro System
+2025-10-26 01:18:57,612 - src.core.system_manager - INFO - ============================================================
+2025-10-26 01:18:57,665 - src.modules.perception.face_detector - INFO - Face detector initialized
+2025-10-26 01:18:57,665 - src.modules.perception.face_counter - INFO - Face counter initialized
+2025-10-26 01:18:57,670 - src.modules.perception.gesture_controller - INFO - CVZone Gesture Controller initialized - 5 distinct gestures
+2025-10-26 01:18:57,670 - src.modules.adaptation.brightness_controller - ERROR - Failed to get initial brightness via sbc: name '_OS_MODULE' is not defined
+2025-10-26 01:18:57,700 - src.modules.adaptation.brightness_controller - WARNING - brightness CLI present but parsing failed to report current value; will use CLI for setting if available
+2025-10-26 01:18:57,796 - src.modules.adaptation.volume_controller - INFO - Volume controller initialized at 48% (macOS osascript)
+2025-10-26 01:18:57,797 - src.modules.adaptation.weighted_adapter - INFO - Weighted adapter initialized
+2025-10-26 01:18:57,797 - src.modules.intelligence.environment_monitor - INFO - Environment monitor initialized
+2025-10-26 01:18:57,797 - src.modules.intelligence.audio_analyzer - INFO - Audio analyzer initialized
+2025-10-26 01:18:57,797 - src.core.system_manager - INFO - System manager initialized successfully
+2025-10-26 01:18:57,797 - src.core.system_manager - INFO - Starting EADA Pro system...
+2025-10-26 01:18:58,822 - src.modules.perception.camera_capture - INFO - Camera 0 started successfully
+2025-10-26 01:18:58,822 - src.modules.perception.camera_capture - INFO - Resolution: 960x540
+2025-10-26 01:18:58,822 - src.modules.perception.camera_capture - INFO - FPS: 30
+2025-10-26 01:18:58,822 - src.modules.perception.audio_capture - INFO - Available audio devices: 5
+2025-10-26 01:18:58,822 - src.modules.perception.audio_capture - INFO - Using default audio device: External Microphone
+2025-10-26 01:18:58,822 - src.modules.perception.audio_capture - INFO - Audio capture started successfully
+2025-10-26 01:18:58,822 - src.modules.perception.audio_capture - INFO - Sample rate: 44100 Hz
+2025-10-26 01:18:58,822 - src.modules.perception.audio_capture - INFO - Channels: 1
+2025-10-26 01:18:58,822 - src.core.system_manager - INFO - ✓ All systems started successfully
+2025-10-26 01:18:58,822 - src.core.system_manager - INFO - ============================================================
+2025-10-26 01:18:58,822 - src.core.system_manager - INFO - EADA Pro is running!
+2025-10-26 01:18:58,822 - src.core.system_manager - INFO - Press 'q' to quit
+2025-10-26 01:18:58,822 - src.core.system_manager - INFO - ============================================================
+2025-10-26 01:18:59,178 - src.modules.adaptation.brightness_controller - INFO - First distance measurement - starting stability timer
+2025-10-26 01:18:59,178 - src.modules.adaptation.volume_controller - INFO - First distance measurement - starting stability timer
+2025-10-26 01:19:00,704 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 51.2cm for 1.5s - updating brightness
+2025-10-26 01:19:00,705 - src.modules.adaptation.brightness_controller - INFO - Distance: 51.2cm -> Target brightness: 35%
+2025-10-26 01:19:00,768 - src.modules.adaptation.brightness_controller - ERROR - brightness CLI failed to set brightness: returncode=0 output=brightness: failed to set brightness of display 0x1 (error -536870201)
+2025-10-26 01:19:00,768 - src.modules.adaptation.volume_controller - INFO - Distance stable at 51.2cm for 1.6s - updating volume
+2025-10-26 01:19:00,768 - src.modules.adaptation.volume_controller - INFO - Distance: 51.2cm -> Target volume: 48%
+2025-10-26 01:19:09,530 - src.core.system_manager - INFO - Gesture: Next Track
+2025-10-26 01:19:09,647 - src.core.system_manager - INFO - Next track via Spotify (macOS)
+2025-10-26 01:19:10,240 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 58.3cm for 1.5s - updating brightness
+2025-10-26 01:19:10,241 - src.modules.adaptation.brightness_controller - INFO - Distance: 58.3cm -> Target brightness: 36%
+2025-10-26 01:19:10,241 - src.modules.adaptation.volume_controller - INFO - Distance stable at 58.3cm for 1.5s - updating volume
+2025-10-26 01:19:10,241 - src.modules.adaptation.volume_controller - INFO - Distance: 58.3cm -> Target volume: 50%
+2025-10-26 01:19:12,707 - src.core.system_manager - INFO - Gesture: Previous Track
+2025-10-26 01:19:12,826 - src.core.system_manager - INFO - Previous track via Spotify (macOS)
+2025-10-26 01:19:16,702 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 52.8cm for 1.5s - updating brightness
+2025-10-26 01:19:16,703 - src.modules.adaptation.brightness_controller - INFO - Distance: 52.8cm -> Target brightness: 35%
+2025-10-26 01:19:16,703 - src.modules.adaptation.volume_controller - INFO - Distance stable at 52.8cm for 1.5s - updating volume
+2025-10-26 01:19:16,703 - src.modules.adaptation.volume_controller - INFO - Distance: 52.8cm -> Target volume: 48%
+2025-10-26 01:19:18,155 - src.core.system_manager - INFO - Quit command received
+2025-10-26 01:19:18,157 - src.core.system_manager - INFO - Stopping EADA Pro system...
+2025-10-26 01:19:18,194 - src.modules.perception.camera_capture - INFO - Camera 0 released
+2025-10-26 01:19:18,194 - src.modules.perception.audio_capture - INFO - Audio capture stopped
+2025-10-26 01:19:18,197 - src.modules.perception.face_detector - INFO - Face detector released
+2025-10-26 01:19:18,199 - src.core.system_manager - INFO - System stopped successfully
+2025-10-26 01:40:55,319 - src.main - INFO - ============================================================
+2025-10-26 01:40:55,319 - src.main - INFO - EADA Pro - Edge AI Display Adaptation System
+2025-10-26 01:40:55,320 - src.main - INFO - Version: 1.0.0
+2025-10-26 01:40:55,320 - src.main - INFO - ============================================================
+2025-10-26 01:40:55,320 - src.main - INFO - Log file: /Users/tanmaypatil/MCA/Mac final/FinalHashCode13/logs/eada_pro.log
+2025-10-26 01:40:55,320 - src.main - INFO - System Configuration:
+2025-10-26 01:40:55,320 - src.main - INFO -   Camera: 960x540 @ 30 FPS
+2025-10-26 01:40:55,320 - src.main - INFO -   Face Detection: True
+2025-10-26 01:40:55,320 - src.main - INFO -   Gesture Recognition: True
+2025-10-26 01:40:55,320 - src.main - INFO -   Audio Monitoring: True
+2025-10-26 01:40:55,320 - src.main - INFO -   Brightness Control: True
+2025-10-26 01:40:55,320 - src.main - INFO -   Volume Control: True
+2025-10-26 01:40:55,320 - src.main - INFO -   Weighted Adaptation: True
+2025-10-26 01:40:55,320 - src.main - INFO -   Face Counting: True
+2025-10-26 01:40:55,320 - src.core.system_manager - INFO - ============================================================
+2025-10-26 01:40:55,320 - src.core.system_manager - INFO - Initializing EADA Pro System
+2025-10-26 01:40:55,320 - src.core.system_manager - INFO - ============================================================
+2025-10-26 01:40:55,374 - src.modules.perception.face_detector - INFO - Face detector initialized
+2025-10-26 01:40:55,374 - src.modules.perception.face_counter - INFO - Face counter initialized
+2025-10-26 01:40:55,379 - src.modules.perception.gesture_controller - INFO - CVZone Gesture Controller initialized - 5 distinct gestures
+2025-10-26 01:40:55,379 - src.modules.adaptation.brightness_controller - ERROR - Failed to get initial brightness via sbc: name '_OS_MODULE' is not defined
+2025-10-26 01:40:55,407 - src.modules.adaptation.brightness_controller - WARNING - brightness CLI present but parsing failed to report current value; will use CLI for setting if available
+2025-10-26 01:40:55,507 - src.modules.adaptation.volume_controller - INFO - Volume controller initialized at 48% (macOS osascript)
+2025-10-26 01:40:55,507 - src.modules.adaptation.weighted_adapter - INFO - Weighted adapter initialized
+2025-10-26 01:40:55,507 - src.modules.intelligence.environment_monitor - INFO - Environment monitor initialized
+2025-10-26 01:40:55,507 - src.modules.intelligence.audio_analyzer - INFO - Audio analyzer initialized
+2025-10-26 01:40:55,507 - src.core.system_manager - INFO - System manager initialized successfully
+2025-10-26 01:40:55,507 - src.core.system_manager - INFO - Starting EADA Pro system...
+2025-10-26 01:40:56,566 - src.modules.perception.camera_capture - INFO - Camera 0 started successfully
+2025-10-26 01:40:56,566 - src.modules.perception.camera_capture - INFO - Resolution: 960x540
+2025-10-26 01:40:56,566 - src.modules.perception.camera_capture - INFO - FPS: 30
+2025-10-26 01:40:56,566 - src.modules.perception.audio_capture - INFO - Available audio devices: 5
+2025-10-26 01:40:56,567 - src.modules.perception.audio_capture - INFO - Using default audio device: External Microphone
+2025-10-26 01:40:56,567 - src.modules.perception.audio_capture - INFO - Audio capture started successfully
+2025-10-26 01:40:56,567 - src.modules.perception.audio_capture - INFO - Sample rate: 44100 Hz
+2025-10-26 01:40:56,567 - src.modules.perception.audio_capture - INFO - Channels: 1
+2025-10-26 01:40:56,567 - src.core.system_manager - INFO - ✓ All systems started successfully
+2025-10-26 01:40:56,567 - src.core.system_manager - INFO - ============================================================
+2025-10-26 01:40:56,567 - src.core.system_manager - INFO - EADA Pro is running!
+2025-10-26 01:40:56,567 - src.core.system_manager - INFO - Press 'q' to quit
+2025-10-26 01:40:56,567 - src.core.system_manager - INFO - ============================================================
+2025-10-26 01:40:56,914 - src.modules.adaptation.brightness_controller - INFO - First distance measurement - starting stability timer
+2025-10-26 01:40:56,914 - src.modules.adaptation.volume_controller - INFO - First distance measurement - starting stability timer
+2025-10-26 01:41:02,529 - src.core.system_manager - INFO - Gesture: Previous Track
+2025-10-26 01:41:02,651 - src.core.system_manager - INFO - Previous track via Spotify (macOS)
+2025-10-26 01:41:03,290 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 77.5cm for 1.6s - updating brightness
+2025-10-26 01:41:03,290 - src.modules.adaptation.brightness_controller - INFO - Distance: 77.5cm -> Target brightness: 40%
+2025-10-26 01:41:03,329 - src.modules.adaptation.brightness_controller - ERROR - brightness CLI failed to set brightness: returncode=0 output=brightness: failed to set brightness of display 0x1 (error -536870201)
+2025-10-26 01:41:03,329 - src.modules.adaptation.volume_controller - INFO - Distance stable at 77.5cm for 1.6s - updating volume
+2025-10-26 01:41:03,330 - src.modules.adaptation.volume_controller - INFO - Distance: 77.5cm -> Target volume: 56%
+2025-10-26 01:41:27,575 - src.core.system_manager - INFO - Gesture: Previous Track
+2025-10-26 01:41:27,694 - src.core.system_manager - INFO - Previous track via Spotify (macOS)
+2025-10-26 01:41:46,688 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 86.3cm for 1.5s - updating brightness
+2025-10-26 01:41:46,688 - src.modules.adaptation.brightness_controller - INFO - Distance: 86.3cm -> Target brightness: 41%
+2025-10-26 01:41:46,688 - src.modules.adaptation.volume_controller - INFO - Distance stable at 86.3cm for 1.5s - updating volume
+2025-10-26 01:41:46,688 - src.modules.adaptation.volume_controller - INFO - Distance: 86.3cm -> Target volume: 59%
+2025-10-26 01:41:53,132 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 113.2cm for 1.5s - updating brightness
+2025-10-26 01:41:53,132 - src.modules.adaptation.brightness_controller - INFO - Distance: 113.2cm -> Target brightness: 46%
+2025-10-26 01:41:53,132 - src.modules.adaptation.volume_controller - INFO - Distance stable at 113.2cm for 1.5s - updating volume
+2025-10-26 01:41:53,132 - src.modules.adaptation.volume_controller - INFO - Distance: 113.2cm -> Target volume: 65%
+2025-10-26 01:42:01,965 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 84.4cm for 1.5s - updating brightness
+2025-10-26 01:42:01,965 - src.modules.adaptation.brightness_controller - INFO - Distance: 84.4cm -> Target brightness: 41%
+2025-10-26 01:42:01,965 - src.modules.adaptation.volume_controller - INFO - Distance stable at 84.4cm for 1.5s - updating volume
+2025-10-26 01:42:01,965 - src.modules.adaptation.volume_controller - INFO - Distance: 84.4cm -> Target volume: 58%
+2025-10-26 01:42:04,324 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 76.2cm for 1.5s - updating brightness
+2025-10-26 01:42:04,325 - src.modules.adaptation.brightness_controller - INFO - Distance: 76.2cm -> Target brightness: 40%
+2025-10-26 01:42:04,325 - src.modules.adaptation.volume_controller - INFO - Distance stable at 76.2cm for 1.5s - updating volume
+2025-10-26 01:42:04,325 - src.modules.adaptation.volume_controller - INFO - Distance: 76.2cm -> Target volume: 56%
+2025-10-26 01:42:24,091 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 99.5cm for 1.6s - updating brightness
+2025-10-26 01:42:24,091 - src.modules.adaptation.brightness_controller - INFO - Distance: 99.5cm -> Target brightness: 44%
+2025-10-26 01:42:24,091 - src.modules.adaptation.volume_controller - INFO - Distance stable at 99.5cm for 1.6s - updating volume
+2025-10-26 01:42:24,091 - src.modules.adaptation.volume_controller - INFO - Distance: 99.5cm -> Target volume: 62%
+2025-10-26 01:42:26,171 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 93.5cm for 1.5s - updating brightness
+2025-10-26 01:42:26,171 - src.modules.adaptation.brightness_controller - INFO - Distance: 93.5cm -> Target brightness: 43%
+2025-10-26 01:42:26,171 - src.modules.adaptation.volume_controller - INFO - Distance stable at 93.5cm for 1.5s - updating volume
+2025-10-26 01:42:26,171 - src.modules.adaptation.volume_controller - INFO - Distance: 93.5cm -> Target volume: 61%
+2025-10-26 01:42:29,207 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 106.1cm for 1.5s - updating brightness
+2025-10-26 01:42:29,207 - src.modules.adaptation.brightness_controller - INFO - Distance: 106.1cm -> Target brightness: 45%
+2025-10-26 01:42:29,207 - src.modules.adaptation.volume_controller - INFO - Distance stable at 106.1cm for 1.5s - updating volume
+2025-10-26 01:42:29,207 - src.modules.adaptation.volume_controller - INFO - Distance: 106.1cm -> Target volume: 63%
+2025-10-26 01:42:30,867 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 87.1cm for 1.6s - updating brightness
+2025-10-26 01:42:30,867 - src.modules.adaptation.brightness_controller - INFO - Distance: 87.1cm -> Target brightness: 42%
+2025-10-26 01:42:30,867 - src.modules.adaptation.volume_controller - INFO - Distance stable at 87.1cm for 1.6s - updating volume
+2025-10-26 01:42:30,867 - src.modules.adaptation.volume_controller - INFO - Distance: 87.1cm -> Target volume: 59%
+2025-10-26 01:42:34,585 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 78.8cm for 1.5s - updating brightness
+2025-10-26 01:42:34,586 - src.modules.adaptation.brightness_controller - INFO - Distance: 78.8cm -> Target brightness: 40%
+2025-10-26 01:42:34,586 - src.modules.adaptation.volume_controller - INFO - Distance stable at 78.8cm for 1.5s - updating volume
+2025-10-26 01:42:34,586 - src.modules.adaptation.volume_controller - INFO - Distance: 78.8cm -> Target volume: 57%
+2025-10-26 01:42:57,431 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 32.6cm for 1.6s - updating brightness
+2025-10-26 01:42:57,432 - src.modules.adaptation.brightness_controller - INFO - Distance: 32.6cm -> Target brightness: 31%
+2025-10-26 01:42:57,432 - src.modules.adaptation.volume_controller - INFO - Distance stable at 32.6cm for 1.6s - updating volume
+2025-10-26 01:42:57,432 - src.modules.adaptation.volume_controller - INFO - Distance: 32.6cm -> Target volume: 37%
+2025-10-26 01:43:02,202 - src.core.system_manager - INFO - Quit command received
+2025-10-26 01:43:02,202 - src.core.system_manager - INFO - Stopping EADA Pro system...
+2025-10-26 01:43:02,248 - src.modules.perception.camera_capture - INFO - Camera 0 released
+2025-10-26 01:43:02,248 - src.modules.perception.audio_capture - INFO - Audio capture stopped
+2025-10-26 01:43:02,252 - src.modules.perception.face_detector - INFO - Face detector released
+2025-10-26 01:43:02,256 - src.core.system_manager - INFO - System stopped successfully
+2025-10-26 02:07:06,588 - src.main - INFO - ============================================================
+2025-10-26 02:07:06,588 - src.main - INFO - EADA Pro - Edge AI Display Adaptation System
+2025-10-26 02:07:06,588 - src.main - INFO - Version: 1.0.0
+2025-10-26 02:07:06,588 - src.main - INFO - ============================================================
+2025-10-26 02:07:06,588 - src.main - INFO - Log file: /Users/tanmaypatil/MCA/Mac final/FinalHashCode13/logs/eada_pro.log
+2025-10-26 02:07:06,588 - src.main - INFO - System Configuration:
+2025-10-26 02:07:06,588 - src.main - INFO -   Camera: 960x540 @ 30 FPS
+2025-10-26 02:07:06,588 - src.main - INFO -   Face Detection: True
+2025-10-26 02:07:06,588 - src.main - INFO -   Gesture Recognition: True
+2025-10-26 02:07:06,588 - src.main - INFO -   Audio Monitoring: True
+2025-10-26 02:07:06,588 - src.main - INFO -   Brightness Control: True
+2025-10-26 02:07:06,588 - src.main - INFO -   Volume Control: True
+2025-10-26 02:07:06,588 - src.main - INFO -   Weighted Adaptation: True
+2025-10-26 02:07:06,588 - src.main - INFO -   Face Counting: True
+2025-10-26 02:07:06,588 - src.core.system_manager - INFO - ============================================================
+2025-10-26 02:07:06,588 - src.core.system_manager - INFO - Initializing EADA Pro System
+2025-10-26 02:07:06,588 - src.core.system_manager - INFO - ============================================================
+2025-10-26 02:07:06,643 - src.modules.perception.face_detector - INFO - Face detector initialized
+2025-10-26 02:07:06,643 - src.modules.perception.face_counter - INFO - Face counter initialized
+2025-10-26 02:07:06,648 - src.modules.perception.gesture_controller - INFO - CVZone Gesture Controller initialized - 5 distinct gestures
+2025-10-26 02:07:06,648 - src.modules.adaptation.brightness_controller - ERROR - Failed to get initial brightness via sbc: name '_OS_MODULE' is not defined
+2025-10-26 02:07:06,679 - src.modules.adaptation.brightness_controller - WARNING - brightness CLI present but parsing failed to report current value; will use CLI for setting if available
+2025-10-26 02:07:06,777 - src.modules.adaptation.volume_controller - INFO - Volume controller initialized at 36% (macOS osascript)
+2025-10-26 02:07:06,777 - src.modules.adaptation.weighted_adapter - INFO - Weighted adapter initialized
+2025-10-26 02:07:06,777 - src.modules.intelligence.environment_monitor - INFO - Environment monitor initialized
+2025-10-26 02:07:06,777 - src.modules.intelligence.audio_analyzer - INFO - Audio analyzer initialized
+2025-10-26 02:07:06,777 - src.core.system_manager - INFO - System manager initialized successfully
+2025-10-26 02:07:06,777 - src.core.system_manager - INFO - Starting EADA Pro system...
+2025-10-26 02:07:07,804 - src.modules.perception.camera_capture - INFO - Camera 0 started successfully
+2025-10-26 02:07:07,805 - src.modules.perception.camera_capture - INFO - Resolution: 960x540
+2025-10-26 02:07:07,805 - src.modules.perception.camera_capture - INFO - FPS: 30
+2025-10-26 02:07:07,805 - src.modules.perception.audio_capture - INFO - Available audio devices: 5
+2025-10-26 02:07:07,805 - src.modules.perception.audio_capture - INFO - Using default audio device: External Microphone
+2025-10-26 02:07:07,805 - src.modules.perception.audio_capture - INFO - Audio capture started successfully
+2025-10-26 02:07:07,805 - src.modules.perception.audio_capture - INFO - Sample rate: 44100 Hz
+2025-10-26 02:07:07,805 - src.modules.perception.audio_capture - INFO - Channels: 1
+2025-10-26 02:07:07,805 - src.core.system_manager - INFO - ✓ All systems started successfully
+2025-10-26 02:07:07,805 - src.core.system_manager - INFO - ============================================================
+2025-10-26 02:07:07,805 - src.core.system_manager - INFO - EADA Pro is running!
+2025-10-26 02:07:07,805 - src.core.system_manager - INFO - Press 'q' to quit
+2025-10-26 02:07:07,805 - src.core.system_manager - INFO - ============================================================
+2025-10-26 02:07:08,155 - src.modules.adaptation.brightness_controller - INFO - First distance measurement - starting stability timer
+2025-10-26 02:07:08,155 - src.modules.adaptation.volume_controller - INFO - First distance measurement - starting stability timer
+2025-10-26 02:07:09,663 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 54.1cm for 1.5s - updating brightness
+2025-10-26 02:07:09,663 - src.modules.adaptation.brightness_controller - INFO - Distance: 54.1cm -> Target brightness: 35%
+2025-10-26 02:07:09,718 - src.modules.adaptation.brightness_controller - ERROR - brightness CLI failed to set brightness: returncode=0 output=brightness: failed to set brightness of display 0x1 (error -536870201)
+2025-10-26 02:07:09,718 - src.modules.adaptation.volume_controller - INFO - Distance stable at 54.1cm for 1.6s - updating volume
+2025-10-26 02:07:09,718 - src.modules.adaptation.volume_controller - INFO - Distance: 54.1cm -> Target volume: 49%
+2025-10-26 02:07:16,884 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 103.4cm for 1.6s - updating brightness
+2025-10-26 02:07:16,885 - src.modules.adaptation.brightness_controller - INFO - Distance: 103.4cm -> Target brightness: 45%
+2025-10-26 02:07:23,200 - src.modules.adaptation.volume_controller - INFO - Distance stable at 96.7cm for 2.3s - updating volume
+2025-10-26 02:07:23,200 - src.modules.adaptation.volume_controller - INFO - Distance: 96.7cm -> Target volume: 61%
+2025-10-26 02:07:25,480 - src.core.system_manager - INFO - Gesture: Previous Track
+2025-10-26 02:07:25,592 - src.core.system_manager - INFO - Previous track via Spotify (macOS)
+2025-10-26 02:07:28,751 - src.core.system_manager - INFO - Gesture: Previous Track
+2025-10-26 02:07:28,863 - src.core.system_manager - INFO - Previous track via Spotify (macOS)
+2025-10-26 02:07:32,393 - src.core.system_manager - INFO - Gesture: Previous Track
+2025-10-26 02:07:32,503 - src.core.system_manager - INFO - Previous track via Spotify (macOS)
+2025-10-26 02:07:36,378 - src.modules.perception.audio_capture - ERROR - Error capturing audio chunk: Error starting stream: Internal PortAudio error [PaErrorCode -9986]
+2025-10-26 02:07:49,204 - src.main - INFO - ============================================================
+2025-10-26 02:07:49,204 - src.main - INFO - EADA Pro - Edge AI Display Adaptation System
+2025-10-26 02:07:49,204 - src.main - INFO - Version: 1.0.0
+2025-10-26 02:07:49,204 - src.main - INFO - ============================================================
+2025-10-26 02:07:49,204 - src.main - INFO - Log file: /Users/tanmaypatil/MCA/Mac final/FinalHashCode13/logs/eada_pro.log
+2025-10-26 02:07:49,204 - src.main - INFO - System Configuration:
+2025-10-26 02:07:49,204 - src.main - INFO -   Camera: 960x540 @ 30 FPS
+2025-10-26 02:07:49,204 - src.main - INFO -   Face Detection: True
+2025-10-26 02:07:49,204 - src.main - INFO -   Gesture Recognition: True
+2025-10-26 02:07:49,204 - src.main - INFO -   Audio Monitoring: True
+2025-10-26 02:07:49,204 - src.main - INFO -   Brightness Control: True
+2025-10-26 02:07:49,204 - src.main - INFO -   Volume Control: True
+2025-10-26 02:07:49,204 - src.main - INFO -   Weighted Adaptation: True
+2025-10-26 02:07:49,204 - src.main - INFO -   Face Counting: True
+2025-10-26 02:07:49,204 - src.core.system_manager - INFO - ============================================================
+2025-10-26 02:07:49,204 - src.core.system_manager - INFO - Initializing EADA Pro System
+2025-10-26 02:07:49,204 - src.core.system_manager - INFO - ============================================================
+2025-10-26 02:07:49,257 - src.modules.perception.face_detector - INFO - Face detector initialized
+2025-10-26 02:07:49,257 - src.modules.perception.face_counter - INFO - Face counter initialized
+2025-10-26 02:07:49,262 - src.modules.perception.gesture_controller - INFO - CVZone Gesture Controller initialized - 5 distinct gestures
+2025-10-26 02:07:49,262 - src.modules.adaptation.brightness_controller - ERROR - Failed to get initial brightness via sbc: name '_OS_MODULE' is not defined
+2025-10-26 02:07:49,294 - src.modules.adaptation.brightness_controller - WARNING - brightness CLI present but parsing failed to report current value; will use CLI for setting if available
+2025-10-26 02:07:49,385 - src.modules.adaptation.volume_controller - INFO - Volume controller initialized at 54% (macOS osascript)
+2025-10-26 02:07:49,385 - src.modules.adaptation.weighted_adapter - INFO - Weighted adapter initialized
+2025-10-26 02:07:49,385 - src.modules.intelligence.environment_monitor - INFO - Environment monitor initialized
+2025-10-26 02:07:49,385 - src.modules.intelligence.audio_analyzer - INFO - Audio analyzer initialized
+2025-10-26 02:07:49,386 - src.core.system_manager - INFO - System manager initialized successfully
+2025-10-26 02:07:49,386 - src.core.system_manager - INFO - Starting EADA Pro system...
+2025-10-26 02:07:50,373 - src.modules.perception.camera_capture - INFO - Camera 0 started successfully
+2025-10-26 02:07:50,373 - src.modules.perception.camera_capture - INFO - Resolution: 960x540
+2025-10-26 02:07:50,373 - src.modules.perception.camera_capture - INFO - FPS: 30
+2025-10-26 02:07:50,373 - src.modules.perception.audio_capture - INFO - Available audio devices: 3
+2025-10-26 02:07:50,373 - src.modules.perception.audio_capture - INFO - Using default audio device: MacBook Air Microphone
+2025-10-26 02:07:50,373 - src.modules.perception.audio_capture - INFO - Audio capture started successfully
+2025-10-26 02:07:50,373 - src.modules.perception.audio_capture - INFO - Sample rate: 44100 Hz
+2025-10-26 02:07:50,373 - src.modules.perception.audio_capture - INFO - Channels: 1
+2025-10-26 02:07:50,373 - src.core.system_manager - INFO - ✓ All systems started successfully
+2025-10-26 02:07:50,373 - src.core.system_manager - INFO - ============================================================
+2025-10-26 02:07:50,373 - src.core.system_manager - INFO - EADA Pro is running!
+2025-10-26 02:07:50,373 - src.core.system_manager - INFO - Press 'q' to quit
+2025-10-26 02:07:50,373 - src.core.system_manager - INFO - ============================================================
+2025-10-26 02:07:50,705 - src.modules.adaptation.brightness_controller - INFO - First distance measurement - starting stability timer
+2025-10-26 02:07:50,705 - src.modules.adaptation.volume_controller - INFO - First distance measurement - starting stability timer
+2025-10-26 02:07:58,372 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 143.9cm for 1.8s - updating brightness
+2025-10-26 02:07:58,373 - src.modules.adaptation.brightness_controller - INFO - Distance: 143.9cm -> Target brightness: 52%
+2025-10-26 02:07:58,424 - src.modules.adaptation.brightness_controller - ERROR - brightness CLI failed to set brightness: returncode=0 output=brightness: failed to set brightness of display 0x1 (error -536870201)
+2025-10-26 02:08:15,681 - src.modules.adaptation.volume_controller - INFO - Distance stable at 159.1cm for 9.6s - updating volume
+2025-10-26 02:08:15,681 - src.modules.adaptation.volume_controller - INFO - Distance: 159.1cm -> Target volume: 73%
+2025-10-26 02:08:41,165 - src.modules.adaptation.volume_controller - INFO - Distance stable at 138.2cm for 1.5s - updating volume
+2025-10-26 02:08:41,165 - src.modules.adaptation.volume_controller - INFO - Distance: 138.2cm -> Target volume: 70%
+2025-10-26 02:08:49,915 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 132.6cm for 1.5s - updating brightness
+2025-10-26 02:08:49,916 - src.modules.adaptation.brightness_controller - INFO - Distance: 132.6cm -> Target brightness: 50%
+2025-10-26 02:09:30,247 - src.modules.adaptation.brightness_controller - INFO - Distance stable at 151.0cm for 1.6s - updating brightness
+2025-10-26 02:09:30,248 - src.modules.adaptation.brightness_controller - INFO - Distance: 151.0cm -> Target brightness: 54%
+2025-10-26 02:09:30,248 - src.modules.adaptation.volume_controller - INFO - Distance stable at 151.0cm for 1.6s - updating volume
+2025-10-26 02:09:30,248 - src.modules.adaptation.volume_controller - INFO - Distance: 151.0cm -> Target volume: 72%
+2025-10-26 02:09:37,799 - src.core.system_manager - INFO - Quit command received
+2025-10-26 02:09:37,799 - src.core.system_manager - INFO - Stopping EADA Pro system...
+2025-10-26 02:09:37,837 - src.modules.perception.camera_capture - INFO - Camera 0 released
+2025-10-26 02:09:37,837 - src.modules.perception.audio_capture - INFO - Audio capture stopped
+2025-10-26 02:09:37,840 - src.modules.perception.face_detector - INFO - Face detector released
+2025-10-26 02:09:37,842 - src.core.system_manager - INFO - System stopped successfully
