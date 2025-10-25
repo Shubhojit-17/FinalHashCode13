@@ -9,6 +9,8 @@ from typing import List, Optional
 from dataclasses import dataclass
 from collections import deque
 import logging
+import time
+import math
 from cvzone.HandTrackingModule import HandDetector
 
 logger = logging.getLogger(__name__)
@@ -67,7 +69,7 @@ class GestureController:
         # Track if hand is present
         self.hand_present = False
         
-        logger.info("CVZone Gesture Controller initialized - 5 distinct gestures")
+        logger.info("CVZone Gesture Controller initialized - 6 distinct gestures")
     
     def detect_gestures(self, frame: np.ndarray) -> List[GestureData]:
         """
@@ -97,15 +99,26 @@ class GestureController:
             fingers = self.detector.fingersUp(hand)  # Get which fingers are up [thumb, index, middle, ring, pinky]
             finger_count = fingers.count(1)
             
-            # Get hand center X position (horizontal, normalized 0-100, left=0, right=100)
+            # Get hand center position (landmarks)
             lmList = hand['lmList']  # List of 21 landmarks
             hand_center_x = lmList[9][0]  # Middle finger MCP joint X coordinate
+            hand_center_y = lmList[9][1]  # Middle finger MCP joint Y coordinate
+            
             frame_width = frame.shape[1]
-            x_percent = int((hand_center_x / frame_width) * 100)  # Left to right
+            frame_height = frame.shape[0]
+            
+            # Convert to normalized positions (0-100)
+            # X: Left (0) to Right (100)
+            x_percent = int((hand_center_x / frame_width) * 100)
             x_percent = max(0, min(100, x_percent))
             
+            # Y: Top (0) to Bottom (100) - but invert for intuitive control
+            # Lower hand (higher Y) = higher volume/brightness
+            y_percent = int(((frame_height - hand_center_y) / frame_height) * 100)
+            y_percent = max(0, min(100, y_percent))
+            
             # Classify gesture based on finger count
-            gesture_type, value = self._classify_by_fingers(finger_count, fingers, x_percent)
+            gesture_type, value = self._classify_by_fingers(finger_count, fingers, x_percent, y_percent)
             
             if gesture_type:
                 gesture = GestureData(
@@ -131,7 +144,7 @@ class GestureController:
         self.last_gestures_cache = gestures
         return gestures
     
-    def _classify_by_fingers(self, finger_count: int, fingers: List[int], x_percent: int) -> tuple:
+    def _classify_by_fingers(self, finger_count: int, fingers: List[int], x_percent: int, y_percent: int) -> tuple:
         """
         Classify gesture based on number of fingers up
         
@@ -139,6 +152,7 @@ class GestureController:
             finger_count: Number of fingers extended
             fingers: List of finger states [thumb, index, middle, ring, pinky]
             x_percent: Horizontal position of hand (0=left, 100=right)
+            y_percent: Vertical position of hand (0=top, 100=bottom)
             
         Returns:
             (gesture_type, value) tuple
@@ -147,17 +161,15 @@ class GestureController:
         if finger_count == 0:
             return ('toggle_gestures', None)
         
-        # 1 Finger: Volume Control (left to right = 0 to 100)
+        # 1 Finger: Volume Control (based on vertical position: bottom=loud, top=quiet)
         elif finger_count == 1 and fingers[1] == 1:  # Only index finger
-            self.last_y_positions.append(x_percent)
-            avg_x = int(np.mean(self.last_y_positions))
-            return ('volume_control', avg_x)
+            # Use vertical position for volume (0-100 from top to bottom)
+            return ('volume_control', y_percent)
         
-        # 2 Fingers: Brightness Control (left to right = 0 to 100)
+        # 2 Fingers: Brightness Control (based on vertical position: bottom=bright, top=dim)
         elif finger_count == 2 and fingers[1] == 1 and fingers[2] == 1:  # Index + Middle
-            self.last_y_positions.append(x_percent)
-            avg_x = int(np.mean(self.last_y_positions))
-            return ('brightness_control', avg_x)
+            # Use vertical position for brightness (0-100 from top to bottom)
+            return ('brightness_control', y_percent)
         
         # 3 Fingers: Play/Pause
         elif finger_count == 3 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1:
