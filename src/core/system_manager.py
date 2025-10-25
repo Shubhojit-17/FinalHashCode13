@@ -10,7 +10,7 @@ import numpy as np
 from typing import Optional
 from src.config import settings
 from src.modules.perception import (
-    CameraCapture, AudioCapture, FaceDetector, FaceCounter
+    CameraCapture, AudioCapture, FaceDetector, FaceCounter, GestureController
 )
 from src.modules.adaptation import (
     BrightnessController, VolumeController, WeightedAdapter
@@ -36,6 +36,7 @@ class SystemManager:
         self.audio = AudioCapture()
         self.face_detector = FaceDetector()
         self.face_counter = FaceCounter()
+        self.gesture_controller = GestureController() if settings.ENABLE_GESTURE_RECOGNITION else None
         
         # Adaptation modules
         self.brightness_controller = BrightnessController()
@@ -55,6 +56,15 @@ class SystemManager:
         # Performance tracking
         self.fps = 0.0
         self.processing_time = 0.0
+        
+        # Optimization: cached values updated less frequently
+        self.cached_ambient_light = None
+        self.cached_audio_level = 0.0
+        self.cached_background_noise = 0.0
+        
+        # Track last logged gesture values to prevent spam
+        self.last_logged_brightness = None
+        self.last_logged_volume = None
         
         logger.info("System manager initialized successfully")
     
@@ -96,26 +106,88 @@ class SystemManager:
         if settings.ENABLE_FACE_DETECTION:
             faces = self.face_detector.detect_faces(frame)
         
+        # Detect gestures
+        gestures = []
+        gesture_adjustment_volume = None
+        gesture_adjustment_brightness = None
+        gesture_play_pause_toggle = False
+        gesture_next_track = False
+        gesture_prev_track = False
+        
+        if settings.ENABLE_GESTURE_RECOGNITION and self.gesture_controller:
+            gestures = self.gesture_controller.detect_gestures(frame)
+            
+            # Get smoothed gesture for control
+            smoothed_gesture = self.gesture_controller.get_smoothed_gesture()
+            if smoothed_gesture:
+                # Gestures now provide adjustments, not overrides
+                if smoothed_gesture.gesture_type == 'volume_control' and smoothed_gesture.value is not None:
+                    gesture_adjustment_volume = smoothed_gesture.value
+                    # Only log if value changed significantly (>5%)
+                    if self.last_logged_volume is None or abs(gesture_adjustment_volume - self.last_logged_volume) > 5:
+                        print(f"[GESTURE] Volume: {gesture_adjustment_volume}%")
+                        self.last_logged_volume = gesture_adjustment_volume
+                    
+                elif smoothed_gesture.gesture_type == 'brightness_control' and smoothed_gesture.value is not None:
+                    gesture_adjustment_brightness = smoothed_gesture.value
+                    # Only log if value changed significantly (>5%)
+                    if self.last_logged_brightness is None or abs(gesture_adjustment_brightness - self.last_logged_brightness) > 5:
+                        print(f"[GESTURE] Brightness: {gesture_adjustment_brightness}%")
+                        self.last_logged_brightness = gesture_adjustment_brightness
+                    
+                elif smoothed_gesture.gesture_type == 'play_pause':
+                    gesture_play_pause_toggle = True
+                    print("✓ [GESTURE] Play/Pause triggered!")
+                    
+                elif smoothed_gesture.gesture_type == 'next_track':
+                    gesture_next_track = True
+                    print("✓ [GESTURE] Next Track triggered!")
+                    
+                elif smoothed_gesture.gesture_type == 'prev_track':
+                    gesture_prev_track = True
+                    print("✓ [GESTURE] Previous Track triggered!")
+        
+        # Handle play/pause gesture toggle
+        if gesture_play_pause_toggle:
+            if not self.media_paused:
+                logger.info("Gesture: Play/Pause - pausing media")
+                self.media_paused = True
+                self._pause_media()
+            else:
+                logger.info("Gesture: Play/Pause - resuming media")
+                self.media_paused = False
+                self._resume_media()
+        
+        # Handle next/previous track gestures
+        if gesture_next_track:
+            logger.info("Gesture: Next Track")
+            self._next_track()
+        elif gesture_prev_track:
+            logger.info("Gesture: Previous Track")
+            self._prev_track()
+        
         # Update face count
         if settings.ENABLE_FACE_COUNTING:
             face_count = self.face_counter.update(faces)
         else:
             face_count = len(faces)
         
-        # Monitor environment
-        ambient_light = None
-        if settings.ENABLE_AMBIENT_LIGHT_DETECTION:
-            ambient_light = self.environment_monitor.estimate_ambient_light(frame)
+        # Monitor environment (every 5th frame to reduce overhead)
+        if self.frame_count % 5 == 0:
+            if settings.ENABLE_AMBIENT_LIGHT_DETECTION:
+                self.cached_ambient_light = self.environment_monitor.estimate_ambient_light(frame)
+        ambient_light = self.cached_ambient_light
         
-        # Analyze audio
-        audio_level = 0.0
-        background_noise = 0.0
-        if settings.ENABLE_AUDIO_MONITORING:
-            audio_data = self.audio.capture_chunk()
-            if audio_data is not None:
-                audio_analysis = self.audio_analyzer.analyze_audio(audio_data)
-                audio_level = audio_analysis['rms']
-                background_noise = audio_analysis['noise_level']
+        # Analyze audio (every 10th frame to reduce overhead)
+        if self.frame_count % 10 == 0:
+            if settings.ENABLE_AUDIO_MONITORING:
+                audio_data = self.audio.capture_chunk()
+                if audio_data is not None:
+                    audio_analysis = self.audio_analyzer.analyze_audio(audio_data)
+                    self.cached_audio_level = audio_analysis['rms']
+                    self.cached_background_noise = audio_analysis['noise_level']
+        audio_level = self.cached_audio_level
+        background_noise = self.cached_background_noise
         
         # Presence detection
         if len(faces) > 0:
@@ -145,13 +217,24 @@ class SystemManager:
             else:
                 weighted_distance = settings.MAX_DETECTION_DISTANCE
         
-        # Apply brightness control based on distance
+        # Apply brightness control - blend distance-based with gesture adjustment
         if settings.ENABLE_BRIGHTNESS_CONTROL and len(faces) > 0:
-            self.brightness_controller.adapt_to_distance(weighted_distance)
+            if gesture_adjustment_brightness is not None:
+                # Use direct gesture control (value is already 0-100)
+                self.brightness_controller.set_brightness(int(gesture_adjustment_brightness), smooth=True)
+            else:
+                # Use distance-based control when no gesture
+                self.brightness_controller.adapt_to_distance(weighted_distance)
         
-        # Apply volume control based on distance
+        # Apply volume control - blend distance-based with gesture adjustment
         if settings.ENABLE_VOLUME_CONTROL and not self.media_paused and len(faces) > 0:
-            self.volume_controller.adapt_to_distance(weighted_distance)
+            if gesture_adjustment_volume is not None:
+                # Use direct gesture control (convert 0-100 to 0-1)
+                gesture_volume = gesture_adjustment_volume / 100.0
+                self.volume_controller.set_volume(gesture_volume, smooth=True)
+            else:
+                # Use distance-based control when no gesture
+                self.volume_controller.adapt_to_distance(weighted_distance)
         elif self.media_paused:
             self.volume_controller.set_volume(0.0, smooth=False)
         
@@ -162,7 +245,7 @@ class SystemManager:
         # Display preview
         if settings.SHOW_PREVIEW:
             display_frame = self._create_display_frame(
-                frame, faces, face_count, weighted_distance, ambient_light, 
+                frame, faces, gestures, face_count, weighted_distance, ambient_light, 
                 audio_level, current_brightness, current_volume
             )
             cv2.imshow('EADA Pro', display_frame)
@@ -172,26 +255,25 @@ class SystemManager:
         self.fps = 1.0 / self.processing_time if self.processing_time > 0 else 0
         self.frame_count += 1
     
-    def _create_display_frame(self, frame, faces, face_count, distance, ambient_light, 
+    def _create_display_frame(self, frame, faces, gestures, face_count, distance, ambient_light, 
                              audio_level, brightness, volume):
-        """Create annotated display frame"""
-        display_frame = frame.copy()
+        """Create annotated display frame (optimized)"""
+        # Use reference instead of copy when possible
+        display_frame = frame
         
-        # Draw faces
+        # Draw faces (only if landmarks enabled)
         if faces and settings.SHOW_LANDMARKS:
             display_frame = self.face_detector.draw_faces(display_frame, faces)
         
-        # Draw metrics overlay
+        # Draw gestures (only if enabled)
+        if gestures and settings.ENABLE_GESTURE_RECOGNITION and settings.SHOW_LANDMARKS:
+            display_frame = self.gesture_controller.draw_gesture_info(display_frame, gestures)
+        
+        # Draw metrics overlay (simplified)
         if settings.SHOW_METRICS:
+            # Simplified overlay - no semi-transparent background for better performance
             y_offset = 30
             line_height = 30
-            
-            # Draw semi-transparent background
-            overlay = display_frame.copy()
-            cv2.rectangle(overlay, (10, 10), (450, 330), (0, 0, 0), -1)
-            display_frame = cv2.addWeighted(display_frame, 0.7, overlay, 0.3, 0)
-            
-            # System info
             metrics = [
                 f"EADA Pro - Face Tracking System",
                 f"Faces Detected: {face_count}",
@@ -202,6 +284,8 @@ class SystemManager:
                 f"Volume: {int(volume * 100)}% ({'Active' if self.volume_controller.available else 'Simulation'})",
                 f"",
                 f"Media: {'Paused' if self.media_paused else 'Playing'}",
+                f"",
+                f"Gestures: 1=Vol 2=Bright 3=Play/Pause 4=Next 5=Prev",
             ]
             
             for i, text in enumerate(metrics):
@@ -256,6 +340,7 @@ class SystemManager:
         self.camera.release()
         self.audio.stop()
         self.face_detector.release()
+        # Gesture controller doesn't need release (no MediaPipe session)
         
         # Close windows
         cv2.destroyAllWindows()
@@ -289,6 +374,34 @@ class SystemManager:
             logger.warning("win32api not available - cannot control media")
         except Exception as e:
             logger.error(f"Failed to resume media: {e}")
+    
+    def _next_track(self):
+        """Skip to next track using Windows media keys"""
+        try:
+            import win32api
+            import win32con
+            # Simulate media next track key (VK_MEDIA_NEXT_TRACK = 0xB0)
+            win32api.keybd_event(0xB0, 0, 0, 0)
+            win32api.keybd_event(0xB0, 0, win32con.KEYEVENTF_KEYUP, 0)
+            logger.info("Next track")
+        except ImportError:
+            logger.warning("win32api not available - cannot control media")
+        except Exception as e:
+            logger.error(f"Failed to skip track: {e}")
+    
+    def _prev_track(self):
+        """Skip to previous track using Windows media keys"""
+        try:
+            import win32api
+            import win32con
+            # Simulate media previous track key (VK_MEDIA_PREV_TRACK = 0xB1)
+            win32api.keybd_event(0xB1, 0, 0, 0)
+            win32api.keybd_event(0xB1, 0, win32con.KEYEVENTF_KEYUP, 0)
+            logger.info("Previous track")
+        except ImportError:
+            logger.warning("win32api not available - cannot control media")
+        except Exception as e:
+            logger.error(f"Failed to go to previous track: {e}")
     
     def get_system_status(self) -> dict:
         """Get comprehensive system status"""

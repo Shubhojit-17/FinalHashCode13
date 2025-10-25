@@ -70,17 +70,23 @@ def main():
         print("="*60)
         print("✓ System initialized successfully")
         print("✓ Camera active | Face detection enabled")
+        if settings.ENABLE_GESTURE_RECOGNITION:
+            print("✓ Hand gesture recognition active")
         print("✓ Auto brightness & volume control active")
         print("✓ Media pause/resume enabled (3s delay)")
         print("\n💡 Features:")
         print("  • Distance-based brightness (30-100%)")
         print("  • Distance-based volume (20-100%)")
+        if settings.ENABLE_GESTURE_RECOGNITION:
+            print("  • Gesture adjustments (pinch=volume, wrist=brightness, palm=pause)")
         print("  • Auto media pause when away")
         print("  • Crowd-friendly: Waits for stability before adjusting")
         print("\n📊 Behavior:")
         print("  • Waits for distance to stabilize (1.5 seconds)")
         print("  • Grace range: ±5cm (no updates within this range)")
         print("  • Movement threshold: 5cm (resets stability timer)")
+        if settings.ENABLE_GESTURE_RECOGNITION:
+            print("  • Gestures blend with distance control (30% gesture + 70% auto)")
         print("  • Perfect for crowds settling in!")
         print("\n⌨️  Press 'q' in the camera window to quit")
         print("="*60 + "\n")

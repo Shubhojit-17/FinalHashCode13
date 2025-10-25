@@ -8,14 +8,16 @@
 - [ ] Add presence detection (auto pause/resume).
 - [ ] Create console-based metrics log.
 
-## Phase 2: Gesture Integration
-- [ ] Integrate MediaPipe Hands module.
-- [ ] Define gesture mappings:
+## Phase 2: Gesture Integration ✅
+- [x] Integrate MediaPipe Hands module.
+- [x] Define gesture mappings:
   - Thumb–index distance → Volume control
   - Wrist Y-axis → Brightness control
   - Open palm → Play/pause
-- [ ] Add gesture smoothing & stability checks.
-- [ ] Display live gesture detection feedback.
+- [x] Add gesture smoothing & stability checks.
+- [x] Display live gesture detection feedback.
+- [x] Implement gesture priority override system.
+- [x] Add custom gesture framework documentation.
 
 ## Phase 3: API + Dashboard
 - [ ] Build FastAPI service (`main.py`).

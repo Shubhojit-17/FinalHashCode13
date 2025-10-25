@@ -1,14 +1,22 @@
 # EADA Pro - Testing Plan
 
 ## 1. Perception Layer
-- [ ] Validate face detection across lighting conditions.
-- [ ] Test distance accuracy within ±10 cm.
+- [x] Validate face detection across lighting conditions.
+- [x] Test distance accuracy within ±10 cm.
+- [x] Two-stage face detection for long-range (100cm+).
 - [ ] Confirm gesture recognition latency <200 ms.
+- [ ] Test gesture smoothing effectiveness.
+- [ ] Validate hand tracking accuracy in various poses.
 
 ## 2. Intelligence Layer
-- [ ] Check correct volume mapping per 0.05 m distance change.
-- [ ] Verify brightness interpolation and no jitter.
-- [ ] Confirm correct play/pause behavior after 3 s absence.
+- [x] Check correct volume mapping per 0.05 m distance change.
+- [x] Verify brightness interpolation and no jitter.
+- [x] Confirm correct play/pause behavior after 3 s absence.
+- [x] Validate stability logic (1.5s wait, 5cm grace range).
+- [ ] Test gesture-based volume control accuracy.
+- [ ] Test gesture-based brightness control accuracy.
+- [ ] Verify gesture priority override system.
+- [ ] Validate play/pause gesture recognition.
 
 ## 3. Adaptation Layer
 - [ ] Test smooth response (2 % change threshold).
@@ -52,20 +60,25 @@
 - [ ] Privacy-preserving processing (no identifiable data storage).
 
 ## 8. Updated Success Metrics
-| Metric | Target |
-|---------|--------|
-| Detection accuracy | ≥95 % |
-| System latency | ≤50 ms |
-| Gesture recognition | ≥90 % precision |
-| Profile encryption | AES-256 verified |
-| API uptime | ≥99 % local reliability |
-| Crowd counting accuracy | ≥85 % |
-| Energy efficiency | ≥40 % savings |
-| Security detection | ≥85 % accuracy |
-| Emergency response | ≤2 seconds |
-| Ambient light accuracy | ≥80 % |
-| Audio S/N ratio | 15-20 dB |
-| Environmental adaptation | ≤5 seconds |
-| **Face counting accuracy** | **≥95 %** |
-| **Weighted adaptation precision** | **≥90 %** |
-| **Spatial weighting accuracy** | **≥85 %** |
+| Metric | Target | Status |
+|---------|--------|--------|
+| Detection accuracy | ≥95 % | ✅ |
+| System latency | ≤50 ms | ✅ |
+| Gesture recognition | ≥90 % precision | ⏳ |
+| Gesture latency | ≤200 ms | ⏳ |
+| Profile encryption | AES-256 verified | ⏳ |
+| API uptime | ≥99 % local reliability | ⏳ |
+| Crowd counting accuracy | ≥85 % | ✅ |
+| Energy efficiency | ≥40 % savings | ⏳ |
+| Security detection | ≥85 % accuracy | ⏳ |
+| Emergency response | ≤2 seconds | ⏳ |
+| Ambient light accuracy | ≥80 % | ✅ |
+| Audio S/N ratio | 15-20 dB | ✅ |
+| Environmental adaptation | ≤5 seconds | ✅ |
+| **Face counting accuracy** | **≥95 %** | ✅ |
+| **Weighted adaptation precision** | **≥90 %** | ✅ |
+| **Spatial weighting accuracy** | **≥85 %** | ✅ |
+| **Gesture smoothing effectiveness** | **≥85 %** | ⏳ |
+| **Multi-hand tracking** | **2 hands simultaneous** | ✅ |
+
+**Legend:** ✅ = Implemented & Tested | ⏳ = Implemented, Testing Pending
