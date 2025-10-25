@@ -27,7 +27,7 @@ KNOWN_FACE_WIDTH_CM = 16.0  # Average human face width in cm
 FOCAL_LENGTH = 700  # Camera focal length (calibrated)
 
 # Face detection thresholds
-FACE_DETECTION_CONFIDENCE = 0.5
+FACE_DETECTION_CONFIDENCE = 0.3  # Lowered for distant face detection
 MIN_FACE_SIZE = 50  # Minimum face size in pixels
 
 # Distance ranges for adaptation (in cm)
@@ -79,7 +79,7 @@ BRIGHTNESS_FAR = 100  # Brightness when far (>250cm)
 # Stability settings
 DISTANCE_CHANGE_THRESHOLD = 0.10  # meters (10cm) - minimum distance change to trigger update
 STABLE_TIME_THRESHOLD = 1.5  # seconds - stability duration before updating
-DISTANCE_GRACE_RANGE = 0.10  # meters (10cm) - no updates within this range from stable position
+DISTANCE_GRACE_RANGE = 0.05  # meters (5cm) - no updates within this range from stable position
 DISTANCE_HISTORY_WINDOW = 15  # frames for distance smoothing (~0.5s at 30fps)
 DISTANCE_STD_THRESHOLD = 0.05  # meters - max std dev for "stable"
 
