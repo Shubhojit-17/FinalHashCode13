@@ -9,8 +9,6 @@ from typing import List, Optional
 from dataclasses import dataclass
 from collections import deque
 import logging
-import time
-import math
 from cvzone.HandTrackingModule import HandDetector
 
 logger = logging.getLogger(__name__)
@@ -69,7 +67,7 @@ class GestureController:
         # Track if hand is present
         self.hand_present = False
         
-        logger.info("CVZone Gesture Controller initialized - 6 distinct gestures")
+        logger.info("CVZone Gesture Controller initialized - 5 distinct gestures")
     
     def detect_gestures(self, frame: np.ndarray) -> List[GestureData]:
         """

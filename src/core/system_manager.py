@@ -331,43 +331,45 @@ class SystemManager:
         return display_frame
     
     def _draw_gesture_status(self, frame):
-        """Draw gesture control and cursor control status"""
+        """Draw gesture control status in top-right corner"""
         # Status text position (top-right)
-        y_offset = 25
-        
-        # Gesture status
         if self.gestures_enabled:
-            gesture_text = "Gestures: ON"
-            gesture_color = (0, 255, 0)  # Green
-            gesture_help = None
+            text = "Gestures: ON"
+            text_color = (0, 255, 0)  # Green
+            help_text = None
         else:
-            gesture_text = "Gestures: OFF"
-            gesture_color = (0, 0, 255)  # Red
-            gesture_help = "Make FIST to turn ON"
+            text = "Gestures: OFF"
+            text_color = (0, 0, 255)  # Red
+            help_text = "Make FIST to turn ON"
         
-        # Draw gesture status
-        gesture_size = cv2.getTextSize(gesture_text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)[0]
-        gesture_x = frame.shape[1] - gesture_size[0] - 15
+        # Draw main status text with background
+        text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)[0]
+        text_x = frame.shape[1] - text_size[0] - 15
+        text_y = 25
         
-        cv2.rectangle(frame, (gesture_x - 5, y_offset - 20), 
-                     (gesture_x + gesture_size[0] + 5, y_offset + 5), 
+        # Draw semi-transparent background
+        cv2.rectangle(frame, (text_x - 5, text_y - 20), 
+                     (text_x + text_size[0] + 5, text_y + 5), 
                      (0, 0, 0), -1)
         
-        cv2.putText(frame, gesture_text, (gesture_x, y_offset),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, gesture_color, 2)
+        # Draw text
+        cv2.putText(frame, text, (text_x, text_y),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 2)
         
-        # Draw gesture help text
-        if gesture_help:
-            help_size = cv2.getTextSize(gesture_help, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)[0]
+        # Draw help text when gestures are OFF
+        if help_text:
+            help_size = cv2.getTextSize(help_text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)[0]
             help_x = frame.shape[1] - help_size[0] - 15
-            help_y = y_offset + 25
+            help_y = 50
             
+            # Background
             cv2.rectangle(frame, (help_x - 5, help_y - 18), 
                          (help_x + help_size[0] + 5, help_y + 3), 
                          (0, 0, 0), -1)
             
-            cv2.putText(frame, gesture_help, (help_x, help_y),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
+            # Text
+            cv2.putText(frame, help_text, (help_x, help_y),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)  # Yellow color
     
     def run(self):
         """Main system loop"""

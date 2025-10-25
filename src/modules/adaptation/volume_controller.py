@@ -39,10 +39,9 @@ class VolumeController:
         
         if self.available:
             try:
-                # Get default audio device and activate volume interface
+                # Get default audio device
                 devices = AudioUtilities.GetSpeakers()
-                interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-                self.volume_interface = interface.QueryInterface(IAudioEndpointVolume)
+                self.volume_interface = devices.EndpointVolume
                 
                 # Get current volume
                 self.current_volume = self.volume_interface.GetMasterVolumeLevelScalar()
