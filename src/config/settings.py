@@ -66,6 +66,11 @@ BRIGHTNESS_MAX = 100
 BRIGHTNESS_STEP = 2  # Minimum change threshold
 BRIGHTNESS_SMOOTHING = 0.3  # Exponential smoothing factor
 
+# Force brightness control into simulation mode (useful for platforms where
+# reading/setting brightness is unsupported). Set EADA_BRIGHTNESS_FORCE_SIMULATE=1
+# in the environment to force simulation.
+BRIGHTNESS_FORCE_SIMULATION = os.getenv('EADA_BRIGHTNESS_FORCE_SIMULATE', '0').lower() in ('1', 'true', 'yes')
+
 # Ambient light adaptation
 AMBIENT_LIGHT_SAMPLES = 10  # Number of samples to average
 DARK_THRESHOLD = 50  # Brightness level

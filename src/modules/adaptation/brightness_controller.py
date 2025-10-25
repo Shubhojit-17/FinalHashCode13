@@ -15,6 +15,12 @@ except ImportError:
     BRIGHTNESS_AVAILABLE = False
     logging.warning("screen-brightness-control not available")
 
+import os
+import platform
+import shutil
+import subprocess
+import re
+
 from src.config import settings
 
 logger = logging.getLogger(__name__)
@@ -34,6 +40,11 @@ class BrightnessController:
         
         # Check if brightness control is available
         self.available = BRIGHTNESS_AVAILABLE
+        # Allow forcing simulation from environment/settings
+        if getattr(settings, 'BRIGHTNESS_FORCE_SIMULATION', False):
+            logger.warning("BRIGHTNESS_FORCE_SIMULATION is enabled - forcing simulation mode")
+            self.available = False
+        self._use_cli = False  # fallback to `brightness` CLI on macOS if sbc fails
         
         if self.available:
             try:
@@ -42,8 +53,30 @@ class BrightnessController:
                 self.target_brightness = self.current_brightness
                 logger.info(f"Brightness controller initialized at {self.current_brightness}%")
             except Exception as e:
-                logger.error(f"Failed to get initial brightness: {e}")
-                self.available = False
+                logger.error(f"Failed to get initial brightness via sbc: {e}")
+                # Try macOS `brightness` CLI as a fallback
+                if platform.system() == 'Darwin' and shutil.which('brightness'):
+                    try:
+                        out = subprocess.check_output(['brightness', '-l'], stderr=subprocess.STDOUT).decode()
+                        m = re.search(r'brightness\s*([0-9\.]+)', out)
+                        if m:
+                            val = float(m.group(1))
+                            self.current_brightness = int(val * 100)
+                            self.target_brightness = self.current_brightness
+                            self.available = True
+                            self._use_cli = True
+                            logger.info(f"Brightness controller initialized at {self.current_brightness}% (via brightness CLI)")
+                        else:
+                            logger.warning("brightness CLI present but parsing failed to report current value; will use CLI for setting if available")
+                            # Still enable CLI for setting even if we couldn't read initial value
+                            self.available = True
+                            self._use_cli = True
+                    except Exception as e2:
+                        logger.error(f"Failed to initialize brightness via CLI: {e2}")
+                        # keep available False unless we explicitly enable CLI setter below
+                        self.available = False
+                else:
+                    self.available = False
         else:
             logger.warning("Brightness control not available - running in simulation mode")
     
@@ -79,12 +112,42 @@ class BrightnessController:
         # Update brightness
         if self.available:
             try:
-                sbc.set_brightness(int(new_brightness))
-                self.current_brightness = new_brightness
-                self.brightness_history.append(new_brightness)
-                return True
+                if self._use_cli and platform.system() == 'Darwin':
+                    # brightness CLI expects 0.0 - 1.0
+                    vol = max(0.0, min(1.0, float(new_brightness) / 100.0))
+                    # Run the CLI and capture stdout/stderr to detect failures on some macs
+                    cp = subprocess.run(['brightness', str(vol)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    out = (cp.stdout or '') + (cp.stderr or '')
+                    if cp.returncode != 0 or 'failed' in out.lower():
+                        logger.error(f"brightness CLI failed to set brightness: returncode={cp.returncode} output={out.strip()}")
+                        # mark unavailable to fall back to simulation
+                        self.available = False
+                        return False
+                    self.current_brightness = new_brightness
+                    self.brightness_history.append(new_brightness)
+                    return True
+                else:
+                    sbc.set_brightness(int(new_brightness))
+                    self.current_brightness = new_brightness
+                    self.brightness_history.append(new_brightness)
+                    return True
             except Exception as e:
                 logger.error(f"Failed to set brightness: {e}")
+                # If CLI exists but errors out, try to allow CLI setter once
+                if platform.system() == 'Darwin' and shutil.which('brightness'):
+                    try:
+                        cp = subprocess.run(['brightness', str(max(0.0, min(1.0, float(new_brightness) / 100.0)))], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                        out = (cp.stdout or '') + (cp.stderr or '')
+                        if cp.returncode == 0 and 'failed' not in out.lower():
+                            self.current_brightness = new_brightness
+                            self.brightness_history.append(new_brightness)
+                            self.available = True
+                            self._use_cli = True
+                            return True
+                        else:
+                            logger.error(f"brightness CLI fallback also failed: returncode={cp.returncode} output={out.strip()}")
+                    except Exception:
+                        pass
                 return False
         else:
             # Simulation mode
