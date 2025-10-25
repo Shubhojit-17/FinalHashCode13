@@ -39,9 +39,10 @@ class VolumeController:
         
         if self.available:
             try:
-                # Get default audio device (newer pycaw API)
+                # Get default audio device and activate volume interface
                 devices = AudioUtilities.GetSpeakers()
-                self.volume_interface = devices.EndpointVolume
+                interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+                self.volume_interface = interface.QueryInterface(IAudioEndpointVolume)
                 
                 # Get current volume
                 self.current_volume = self.volume_interface.GetMasterVolumeLevelScalar()

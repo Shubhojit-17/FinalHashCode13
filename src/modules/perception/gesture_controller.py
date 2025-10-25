@@ -9,6 +9,8 @@ from typing import List, Optional
 from dataclasses import dataclass
 from collections import deque
 import logging
+import time
+import math
 from cvzone.HandTrackingModule import HandDetector
 
 logger = logging.getLogger(__name__)
@@ -67,7 +69,7 @@ class GestureController:
         # Track if hand is present
         self.hand_present = False
         
-        logger.info("CVZone Gesture Controller initialized - 5 distinct gestures")
+        logger.info("CVZone Gesture Controller initialized - 6 distinct gestures")
     
     def detect_gestures(self, frame: np.ndarray) -> List[GestureData]:
         """
@@ -173,9 +175,19 @@ class GestureController:
         
         return (None, None)
     
+    def update_cooldown(self):
+        """
+        Update cooldown timer every frame, regardless of hand detection
+        """
+        if self.cooldown_frames > 0:
+            self.cooldown_frames -= 1
+            if self.cooldown_frames == 0:
+                self.last_triggered_gesture = None
+                print(f"[COOLDOWN] Gesture cooldown expired - ready for next gesture")
+    
     def get_smoothed_gesture(self) -> Optional[GestureData]:
         """
-        Get smoothed gesture with hold detection and cooldown
+        Get smoothed gesture with hold detection
         
         Returns:
             Smoothed gesture or None
@@ -193,11 +205,6 @@ class GestureController:
         # For toggle actions (play/pause, next, prev), use hold + cooldown per gesture
         # Only block the SAME gesture from repeating, not different gestures
         if self.cooldown_frames > 0 and current_gesture.gesture_type == self.last_triggered_gesture:
-            self.cooldown_frames -= 1
-            # Reset last triggered gesture when cooldown expires
-            if self.cooldown_frames == 0:
-                self.last_triggered_gesture = None
-                print(f"[COOLDOWN] {current_gesture.gesture_type} ready again")
             return None  # Still in cooldown for this specific gesture
         
         # Different gesture - allow it immediately
@@ -219,7 +226,7 @@ class GestureController:
                 self.gesture_hold_frames = 0
                 self.cooldown_frames = self.cooldown_duration
                 self.last_triggered_gesture = current_gesture.gesture_type
-                print(f"[COOLDOWN] 3-second cooldown started")
+                print(f"[COOLDOWN] 1.5-second cooldown started for {current_gesture.gesture_type}")
                 return current_gesture
             else:
                 # Hand removed, reset

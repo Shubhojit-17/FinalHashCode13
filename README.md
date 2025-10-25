@@ -160,7 +160,7 @@ EADA Pro includes three default gesture mappings:
 - **Detection**: At least 3 fingers extended above MCP joints
 - **Activation**: Hold for 10 frames (~0.3s)
 - **Action**: Toggles media playback state
-- **Cooldown**: 5 frames reset time
+- **Cooldown**: 1.5 seconds (45 frames) - continues even when hand is removed
 
 ### Implementing Custom Gestures
 
@@ -289,6 +289,7 @@ if len(gestures) == 2:
 3. **Deadzone**: Add deadzones to prevent unintended activations
 4. **State Tracking**: Use counters for hold-time requirements
 5. **Priority System**: Define which gestures override others
+6. **Cooldown Behavior**: Cooldown timers continue even when hands are removed, preventing gesture spam
 
 ### Gesture Recognition Best Practices
 
@@ -580,7 +581,8 @@ See the following files for detailed information:
 |---------|--------|-------|-------|
 | Thumb-Index Pinch | Volume | 2-15cm | Closer = quieter |
 | Wrist Up/Down | Brightness | 20-80% frame | Higher = brighter |
-| Open Palm (hold 0.3s) | Play/Pause | - | Toggle playback |
+| Open Palm (hold 0.3s) | Play/Pause | - | Toggle playback, 1.5s cooldown |
+| Fist (hold 0.3s) | Toggle Gestures | - | Enable/disable all gestures |
 
 ### Distance-Based Controls
 
