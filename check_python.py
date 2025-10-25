@@ -19,9 +19,12 @@ def check_python_version():
     if version.major == 3 and version.minor in [10, 11]:
         print("\n✅ SUCCESS: Python version is compatible!")
         print("\nYou can proceed with installation:")
-        print("  1. Run: .\\setup.ps1 (Windows)")
-        print("  2. Or manually: python -m venv venv")
-        print("  3. Then: pip install -r requirements.txt")
+        print("  - On Windows: Run: .\\setup.ps1 (PowerShell)")
+        print("  - On macOS / Linux:")
+        print("      python3 -m venv venv")
+        print("      source venv/bin/activate")
+        print("  - Then install dependencies:")
+        print("      pip install -r requirements.txt")
         return True
     elif version.major == 3 and version.minor >= 12:
         print("\n❌ ERROR: Python version is TOO NEW")

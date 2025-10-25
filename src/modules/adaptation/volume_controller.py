@@ -5,6 +5,8 @@ Controls system volume based on various factors
 
 import logging
 import numpy as np
+import platform
+import subprocess
 from typing import Optional
 from collections import deque
 
@@ -15,6 +17,16 @@ try:
 except ImportError:
     VOLUME_AVAILABLE = False
     logging.warning("pycaw not available")
+
+# On macOS we can use osascript as a fallback to get/set the system output volume
+MAC_OSASCRIPT_AVAILABLE = False
+if not VOLUME_AVAILABLE and platform.system() == 'Darwin':
+    try:
+        # Simple check: attempt to query volume via osascript
+        out = subprocess.check_output(["osascript", "-e", 'output volume of (get volume settings)'])
+        MAC_OSASCRIPT_AVAILABLE = True
+    except Exception:
+        MAC_OSASCRIPT_AVAILABLE = False
 
 from src.config import settings
 
@@ -33,22 +45,33 @@ class VolumeController:
         self.distance_stable_since = None
         self.last_updated_distance = None  # Track last distance that triggered an update
         
-        # Check if volume control is available
-        self.available = VOLUME_AVAILABLE
+        # Check if volume control is available (Windows pycaw or macOS osascript)
+        self.available = VOLUME_AVAILABLE or MAC_OSASCRIPT_AVAILABLE
         self.volume_interface = None
         
-        if self.available:
+        if VOLUME_AVAILABLE:
             try:
                 # Get default audio device (newer pycaw API)
                 devices = AudioUtilities.GetSpeakers()
                 self.volume_interface = devices.EndpointVolume
                 
-                # Get current volume
+                # Get current volume (pycaw returns 0.0-1.0)
                 self.current_volume = self.volume_interface.GetMasterVolumeLevelScalar()
                 self.target_volume = self.current_volume
                 logger.info(f"Volume controller initialized at {self.current_volume*100:.0f}%")
             except Exception as e:
                 logger.error(f"Failed to initialize volume control: {e}")
+                self.available = False
+        elif MAC_OSASCRIPT_AVAILABLE:
+            try:
+                out = subprocess.check_output(["osascript", "-e", 'output volume of (get volume settings)'])
+                vol = int(out.decode().strip())
+                # osascript returns 0-100
+                self.current_volume = vol / 100.0
+                self.target_volume = self.current_volume
+                logger.info(f"Volume controller initialized at {self.current_volume*100:.0f}% (macOS osascript)")
+            except Exception as e:
+                logger.error(f"Failed to initialize macOS volume control: {e}")
                 self.available = False
         else:
             logger.warning("Volume control not available - running in simulation mode")
@@ -83,6 +106,7 @@ class VolumeController:
             return True
         
         # Update volume
+        # Windows / pycaw implementation
         if self.available and self.volume_interface:
             try:
                 self.volume_interface.SetMasterVolumeLevelScalar(new_volume, None)
@@ -92,12 +116,25 @@ class VolumeController:
             except Exception as e:
                 logger.error(f"Failed to set volume: {e}")
                 return False
-        else:
-            # Simulation mode
-            self.current_volume = new_volume
-            self.volume_history.append(new_volume)
-            logger.debug(f"[SIMULATION] Volume set to {new_volume*100:.0f}%")
-            return True
+
+        # macOS osascript fallback
+        if MAC_OSASCRIPT_AVAILABLE and platform.system() == 'Darwin':
+            try:
+                vol_percent = int(new_volume * 100)
+                subprocess.run(["osascript", "-e", f'set volume output volume {vol_percent}'], check=True)
+                self.current_volume = new_volume
+                self.volume_history.append(new_volume)
+                logger.debug(f"[macOS] Volume set to {vol_percent}%")
+                return True
+            except Exception as e:
+                logger.error(f"Failed to set macOS volume via osascript: {e}")
+                return False
+
+        # Simulation mode
+        self.current_volume = new_volume
+        self.volume_history.append(new_volume)
+        logger.debug(f"[SIMULATION] Volume set to {new_volume*100:.0f}%")
+        return True
     
     def adapt_to_distance(self, distance: float) -> bool:
         """

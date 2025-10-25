@@ -7,6 +7,8 @@ import cv2
 import logging
 import time
 import numpy as np
+import platform
+import subprocess
 from typing import Optional
 from src.config import settings
 from src.modules.perception import (
@@ -67,6 +69,11 @@ class SystemManager:
         self.last_logged_volume = None
         
         logger.info("System manager initialized successfully")
+        # Control mode: 'gesture', 'head', or 'hybrid'
+        self.control_mode = getattr(settings, 'CONTROL_MODE_DEFAULT', 'hybrid')
+        # Button rectangle (will be updated per-frame)
+        self._mode_button_rect = None  # (x1,y1,x2,y2)
+        self._window_name = 'EADA Pro'
     
     def start(self) -> bool:
         """
@@ -219,22 +226,32 @@ class SystemManager:
         
         # Apply brightness control - blend distance-based with gesture adjustment
         if settings.ENABLE_BRIGHTNESS_CONTROL and len(faces) > 0:
-            if gesture_adjustment_brightness is not None:
-                # Use direct gesture control (value is already 0-100)
-                self.brightness_controller.set_brightness(int(gesture_adjustment_brightness), smooth=True)
-            else:
-                # Use distance-based control when no gesture
+            # Behavior depends on control_mode
+            if self.control_mode == 'gesture':
+                if gesture_adjustment_brightness is not None:
+                    self.brightness_controller.set_brightness(int(gesture_adjustment_brightness), smooth=True)
+            elif self.control_mode == 'head':
                 self.brightness_controller.adapt_to_distance(weighted_distance)
+            else:  # hybrid
+                if gesture_adjustment_brightness is not None:
+                    self.brightness_controller.set_brightness(int(gesture_adjustment_brightness), smooth=True)
+                else:
+                    self.brightness_controller.adapt_to_distance(weighted_distance)
         
         # Apply volume control - blend distance-based with gesture adjustment
         if settings.ENABLE_VOLUME_CONTROL and not self.media_paused and len(faces) > 0:
-            if gesture_adjustment_volume is not None:
-                # Use direct gesture control (convert 0-100 to 0-1)
-                gesture_volume = gesture_adjustment_volume / 100.0
-                self.volume_controller.set_volume(gesture_volume, smooth=True)
-            else:
-                # Use distance-based control when no gesture
+            if self.control_mode == 'gesture':
+                if gesture_adjustment_volume is not None:
+                    gesture_volume = gesture_adjustment_volume / 100.0
+                    self.volume_controller.set_volume(gesture_volume, smooth=True)
+            elif self.control_mode == 'head':
                 self.volume_controller.adapt_to_distance(weighted_distance)
+            else:  # hybrid
+                if gesture_adjustment_volume is not None:
+                    gesture_volume = gesture_adjustment_volume / 100.0
+                    self.volume_controller.set_volume(gesture_volume, smooth=True)
+                else:
+                    self.volume_controller.adapt_to_distance(weighted_distance)
         elif self.media_paused:
             self.volume_controller.set_volume(0.0, smooth=False)
         
@@ -248,7 +265,9 @@ class SystemManager:
                 frame, faces, gestures, face_count, weighted_distance, ambient_light, 
                 audio_level, current_brightness, current_volume
             )
-            cv2.imshow('EADA Pro', display_frame)
+            # Draw mode button and show window
+            display_frame = self._draw_mode_button(display_frame)
+            cv2.imshow(self._window_name, display_frame)
         
         # Update performance metrics
         self.processing_time = time.time() - start_time
@@ -302,6 +321,39 @@ class SystemManager:
                 )
         
         return display_frame
+
+    def _draw_mode_button(self, frame):
+        """Draw a small toggle button on the top-right corner to switch control modes"""
+        h, w = frame.shape[:2]
+        bw, bh = 180, 40
+        x1 = w - bw - 20
+        y1 = 20
+        x2 = x1 + bw
+        y2 = y1 + bh
+        # Save rect for mouse callback
+        self._mode_button_rect = (x1, y1, x2, y2)
+        # Background
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (50, 50, 50), -1)
+        # Border
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (200, 200, 200), 1)
+        # Text
+        mode_text = f"Mode: {self.control_mode.capitalize()}"
+        cv2.putText(frame, mode_text, (x1 + 10, y1 + 26), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+        return frame
+
+    def _on_mouse(self, event, x, y, flags, param):
+        """Mouse callback to detect clicks on the mode button"""
+        if event == cv2.EVENT_LBUTTONDOWN and self._mode_button_rect is not None:
+            x1, y1, x2, y2 = self._mode_button_rect
+            if x1 <= x <= x2 and y1 <= y <= y2:
+                # Cycle control mode
+                if self.control_mode == 'hybrid':
+                    self.control_mode = 'gesture'
+                elif self.control_mode == 'gesture':
+                    self.control_mode = 'head'
+                else:
+                    self.control_mode = 'hybrid'
+                logger.info(f"Control mode switched to: {self.control_mode}")
     
     def run(self):
         """Main system loop"""
@@ -315,6 +367,15 @@ class SystemManager:
         logger.info("=" * 60)
         
         try:
+            # Prepare preview window and mouse callback
+            if settings.SHOW_PREVIEW:
+                try:
+                    cv2.namedWindow(self._window_name, cv2.WINDOW_NORMAL)
+                    cv2.setMouseCallback(self._window_name, self._on_mouse)
+                except Exception:
+                    # Some OpenCV builds on macOS may not support namedWindow flags fully
+                    pass
+
             while self.is_running:
                 self.process_frame()
                 
@@ -350,56 +411,141 @@ class SystemManager:
     def _pause_media(self):
         """Pause media playback using Windows media keys"""
         try:
-            import win32api
-            import win32con
-            # Simulate media play/pause key (VK_MEDIA_PLAY_PAUSE = 0xB3)
-            win32api.keybd_event(0xB3, 0, 0, 0)
-            win32api.keybd_event(0xB3, 0, win32con.KEYEVENTF_KEYUP, 0)
-            logger.info("Media paused")
+            if platform.system() == 'Windows':
+                import win32api
+                import win32con
+                # Simulate media play/pause key (VK_MEDIA_PLAY_PAUSE = 0xB3)
+                win32api.keybd_event(0xB3, 0, 0, 0)
+                win32api.keybd_event(0xB3, 0, win32con.KEYEVENTF_KEYUP, 0)
+                logger.info("Media paused (Windows)")
+            elif platform.system() == 'Darwin':
+                # Choose order based on configuration
+                pref = getattr(settings, 'MEDIA_PLAYER_PREFERENCE', 'auto')
+                order = []
+                if pref == 'spotify':
+                    order = ['Spotify', 'Music']
+                elif pref == 'music':
+                    order = ['Music', 'Spotify']
+                else:
+                    order = ['Spotify', 'Music']
+
+                controlled = False
+                for app in order:
+                    try:
+                        subprocess.run(["osascript", "-e", f'tell application "{app}" to playpause'], check=True)
+                        logger.info(f"Media paused/resumed via {app} (macOS)")
+                        controlled = True
+                        break
+                    except subprocess.CalledProcessError:
+                        continue
+
+                if not controlled:
+                    logger.warning("No supported macOS media player controlled (Spotify/Music)")
+            else:
+                logger.warning("Media control not implemented for this platform")
         except ImportError:
-            logger.warning("win32api not available - cannot control media")
+            logger.warning("win32api not available - cannot control media on Windows")
         except Exception as e:
             logger.error(f"Failed to pause media: {e}")
     
     def _resume_media(self):
         """Resume media playback using Windows media keys"""
         try:
-            import win32api
-            import win32con
-            # Simulate media play/pause key
-            win32api.keybd_event(0xB3, 0, 0, 0)
-            win32api.keybd_event(0xB3, 0, win32con.KEYEVENTF_KEYUP, 0)
-            logger.info("Media resumed")
+            if platform.system() == 'Windows':
+                import win32api
+                import win32con
+                # Simulate media play/pause key
+                win32api.keybd_event(0xB3, 0, 0, 0)
+                win32api.keybd_event(0xB3, 0, win32con.KEYEVENTF_KEYUP, 0)
+                logger.info("Media resumed (Windows)")
+            elif platform.system() == 'Darwin':
+                pref = getattr(settings, 'MEDIA_PLAYER_PREFERENCE', 'auto')
+                order = []
+                if pref == 'spotify':
+                    order = ['Spotify', 'Music']
+                elif pref == 'music':
+                    order = ['Music', 'Spotify']
+                else:
+                    order = ['Spotify', 'Music']
+
+                controlled = False
+                for app in order:
+                    try:
+                        subprocess.run(["osascript", "-e", f'tell application "{app}" to playpause'], check=True)
+                        logger.info(f"Media paused/resumed via {app} (macOS)")
+                        controlled = True
+                        break
+                    except subprocess.CalledProcessError:
+                        continue
+
+                if not controlled:
+                    logger.warning("No supported macOS media player controlled (Spotify/Music)")
+            else:
+                logger.warning("Media control not implemented for this platform")
         except ImportError:
-            logger.warning("win32api not available - cannot control media")
+            logger.warning("win32api not available - cannot control media on Windows")
         except Exception as e:
             logger.error(f"Failed to resume media: {e}")
     
     def _next_track(self):
         """Skip to next track using Windows media keys"""
         try:
-            import win32api
-            import win32con
-            # Simulate media next track key (VK_MEDIA_NEXT_TRACK = 0xB0)
-            win32api.keybd_event(0xB0, 0, 0, 0)
-            win32api.keybd_event(0xB0, 0, win32con.KEYEVENTF_KEYUP, 0)
-            logger.info("Next track")
+            if platform.system() == 'Windows':
+                import win32api
+                import win32con
+                # Simulate media next track key (VK_MEDIA_NEXT_TRACK = 0xB0)
+                win32api.keybd_event(0xB0, 0, 0, 0)
+                win32api.keybd_event(0xB0, 0, win32con.KEYEVENTF_KEYUP, 0)
+                logger.info("Next track (Windows)")
+            elif platform.system() == 'Darwin':
+                pref = getattr(settings, 'MEDIA_PLAYER_PREFERENCE', 'auto')
+                order = ['Spotify', 'Music'] if pref != 'music' else ['Music', 'Spotify']
+                controlled = False
+                for app in order:
+                    try:
+                        subprocess.run(["osascript", "-e", f'tell application "{app}" to next track'], check=True)
+                        logger.info(f"Next track via {app} (macOS)")
+                        controlled = True
+                        break
+                    except subprocess.CalledProcessError:
+                        continue
+                if not controlled:
+                    logger.warning("No supported macOS media player controlled (Spotify/Music)")
+            else:
+                logger.warning("Media control not implemented for this platform")
         except ImportError:
-            logger.warning("win32api not available - cannot control media")
+            logger.warning("win32api not available - cannot control media on Windows")
         except Exception as e:
             logger.error(f"Failed to skip track: {e}")
     
     def _prev_track(self):
         """Skip to previous track using Windows media keys"""
         try:
-            import win32api
-            import win32con
-            # Simulate media previous track key (VK_MEDIA_PREV_TRACK = 0xB1)
-            win32api.keybd_event(0xB1, 0, 0, 0)
-            win32api.keybd_event(0xB1, 0, win32con.KEYEVENTF_KEYUP, 0)
-            logger.info("Previous track")
+            if platform.system() == 'Windows':
+                import win32api
+                import win32con
+                # Simulate media previous track key (VK_MEDIA_PREV_TRACK = 0xB1)
+                win32api.keybd_event(0xB1, 0, 0, 0)
+                win32api.keybd_event(0xB1, 0, win32con.KEYEVENTF_KEYUP, 0)
+                logger.info("Previous track (Windows)")
+            elif platform.system() == 'Darwin':
+                pref = getattr(settings, 'MEDIA_PLAYER_PREFERENCE', 'auto')
+                order = ['Spotify', 'Music'] if pref != 'music' else ['Music', 'Spotify']
+                controlled = False
+                for app in order:
+                    try:
+                        subprocess.run(["osascript", "-e", f'tell application "{app}" to previous track'], check=True)
+                        logger.info(f"Previous track via {app} (macOS)")
+                        controlled = True
+                        break
+                    except subprocess.CalledProcessError:
+                        continue
+                if not controlled:
+                    logger.warning("No supported macOS media player controlled (Spotify/Music)")
+            else:
+                logger.warning("Media control not implemented for this platform")
         except ImportError:
-            logger.warning("win32api not available - cannot control media")
+            logger.warning("win32api not available - cannot control media on Windows")
         except Exception as e:
             logger.error(f"Failed to go to previous track: {e}")
     

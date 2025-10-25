@@ -171,3 +171,15 @@ ENABLE_FACE_COUNTING = True
 ENABLE_WEIGHTED_ADAPTATION = True
 ENABLE_SECURITY_MONITORING = False  # Enable in production
 ENABLE_API_SERVER = True
+
+# Media player preference for macOS automation: 'spotify', 'music', or 'auto'
+# - 'spotify' will attempt to control Spotify first
+# - 'music' will attempt to control Apple Music first
+# - 'auto' (default) will try Spotify then Apple Music
+MEDIA_PLAYER_PREFERENCE = os.getenv('EADA_MEDIA_PLAYER', 'auto')
+ 
+# Control mode for user input affecting brightness/volume:
+# 'gesture' - gestures control brightness/volume
+# 'head'    - head/distance tracking controls brightness/volume
+# 'hybrid'  - gestures override when present, otherwise head tracking (default)
+CONTROL_MODE_DEFAULT = os.getenv('EADA_CONTROL_MODE', 'hybrid')

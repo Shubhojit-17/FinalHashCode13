@@ -50,7 +50,7 @@ class GestureController:
         
         # Thresholds
         self.hold_threshold = 15  # Frames to hold before triggering (~0.5 seconds at 30fps)
-        self.cooldown_duration = 90  # 3 seconds at 30fps (90 frames)
+        self.cooldown_duration = 30  # 1 second at 30fps (30 frames)
         
         # Y-position tracking for continuous controls (volume/brightness)
         self.last_y_positions = deque(maxlen=5)
@@ -208,7 +208,7 @@ class GestureController:
                 self.gesture_hold_frames = 0
                 self.cooldown_frames = self.cooldown_duration
                 self.last_triggered_gesture = current_gesture.gesture_type
-                print(f"[COOLDOWN] 3-second cooldown started")
+                print(f"[COOLDOWN] 1-second cooldown started")
                 return current_gesture
             else:
                 # Hand removed, reset

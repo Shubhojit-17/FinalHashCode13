@@ -73,7 +73,7 @@ def main():
         if settings.ENABLE_GESTURE_RECOGNITION:
             print("✓ Hand gesture recognition active")
         print("✓ Auto brightness & volume control active")
-        print("✓ Media pause/resume enabled (3s delay)")
+        print("✓ Media pause/resume enabled (1s delay)")
         print("\n💡 Features:")
         print("  • Distance-based brightness (30-100%)")
         print("  • Distance-based volume (20-100%)")
