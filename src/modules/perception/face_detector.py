@@ -29,7 +29,14 @@ class FaceDetector:
     
     def __init__(self):
         """Initialize face detector"""
-        # Initialize MediaPipe Face Mesh (more accurate than Face Detection)
+        # Initialize MediaPipe Face Detection (for long-range detection)
+        self.mp_face_detection = mp.solutions.face_detection
+        self.face_detection = self.mp_face_detection.FaceDetection(
+            min_detection_confidence=settings.FACE_DETECTION_CONFIDENCE,
+            model_selection=1  # 1 for full-range (up to 5m)
+        )
+        
+        # Initialize MediaPipe Face Mesh (for accurate landmarks and distance)
         self.mp_face_mesh = mp.solutions.face_mesh
         self.mp_drawing = mp.solutions.drawing_utils
         
@@ -53,7 +60,9 @@ class FaceDetector:
     
     def detect_faces(self, frame: np.ndarray) -> List[FaceData]:
         """
-        Detect faces in frame using Face Mesh
+        Detect faces in frame using two-stage approach:
+        1. Face Detection for long-range detection
+        2. Face Mesh on detected regions for accurate distance
         
         Args:
             frame: BGR image from camera
@@ -70,29 +79,66 @@ class FaceDetector:
         # Convert to RGB for MediaPipe
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
-        # Detect faces
-        results = self.face_mesh.process(frame_rgb)
+        # Stage 1: Face Detection (long-range)
+        detection_results = self.face_detection.process(frame_rgb)
+        detected_bboxes = []
         
+        if detection_results.detections:
+            for detection in detection_results.detections:
+                bbox = detection.location_data.relative_bounding_box
+                x = int(bbox.xmin * self.frame_width)
+                y = int(bbox.ymin * self.frame_height)
+                w = int(bbox.width * self.frame_width)
+                h = int(bbox.height * self.frame_height)
+                
+                # Filter small faces
+                if w >= settings.MIN_FACE_SIZE and h >= settings.MIN_FACE_SIZE:
+                    detected_bboxes.append((x, y, w, h))
+        
+        # Stage 2: Face Mesh on detected regions
         faces = []
-        if results.multi_face_landmarks:
-            for face_landmarks in results.multi_face_landmarks:
-                face_data = self._process_face_mesh(face_landmarks)
-                if face_data:
-                    faces.append(face_data)
+        for bbox in detected_bboxes:
+            x, y, w, h = bbox
+            
+            # Expand bbox slightly for better mesh detection
+            margin = 0.2  # 20% margin
+            x1 = max(0, int(x - margin * w))
+            y1 = max(0, int(y - margin * h))
+            x2 = min(self.frame_width, int(x + w + margin * w))
+            y2 = min(self.frame_height, int(y + h + margin * h))
+            
+            crop = frame_rgb[y1:y2, x1:x2]
+            crop_height, crop_width = crop.shape[:2]
+            
+            if crop.size == 0 or crop_width < 50 or crop_height < 50:
+                continue
+            
+            # Run Face Mesh on crop
+            mesh_results = self.face_mesh.process(crop)
+            
+            if mesh_results.multi_face_landmarks:
+                for face_landmarks in mesh_results.multi_face_landmarks:
+                    face_data = self._process_face_mesh_cropped(
+                        face_landmarks, bbox, (x1, y1, crop_width, crop_height)
+                    )
+                    if face_data:
+                        faces.append(face_data)
         
         self.last_faces = faces
         return faces
     
-    def _process_face_mesh(self, face_landmarks) -> Optional[FaceData]:
-        """Process Face Mesh landmarks"""
+    def _process_face_mesh_cropped(self, face_landmarks, original_bbox, crop_info) -> Optional[FaceData]:
+        """Process Face Mesh landmarks from cropped region"""
         try:
             landmarks = face_landmarks.landmark
+            x1, y1, crop_width, crop_height = crop_info
+            x, y, w, h = original_bbox
             
             # Get face width using landmarks 234 (left) and 454 (right)
             left_x = landmarks[234].x
             right_x = landmarks[454].x
             face_width_normalized = abs(right_x - left_x)
-            face_width_px = face_width_normalized * self.frame_width
+            face_width_px = face_width_normalized * crop_width  # Use crop width for distance calc
             
             # Calculate distance using face width
             if face_width_px > 10:  # Reasonable minimum
@@ -101,28 +147,23 @@ class FaceDetector:
             else:
                 return None
             
-            # Calculate bounding box from landmarks
-            xs = [lm.x for lm in landmarks]
-            ys = [lm.y for lm in landmarks]
+            # Adjust landmarks to original frame coordinates
+            adjusted_landmarks = []
+            for lm in landmarks:
+                # Scale to crop size, then offset to original position
+                orig_x = lm.x * crop_width + x1
+                orig_y = lm.y * crop_height + y1
+                orig_z = lm.z * crop_width  # Z is relative, scale by width
+                adjusted_landmarks.append([orig_x / self.frame_width, orig_y / self.frame_height, orig_z / self.frame_width])
             
-            x_min = int(min(xs) * self.frame_width)
-            x_max = int(max(xs) * self.frame_width)
-            y_min = int(min(ys) * self.frame_height)
-            y_max = int(max(ys) * self.frame_height)
+            key_landmarks = np.array(adjusted_landmarks)
             
-            w = x_max - x_min
-            h = y_max - y_min
-            
-            # Filter out too small faces
-            if w < settings.MIN_FACE_SIZE or h < settings.MIN_FACE_SIZE:
-                return None
+            # Use original bbox for display
+            x_min, y_min, w, h = x, y, w, h
             
             # Calculate normalized position (center of face)
             pos_x = (x_min + w/2) / self.frame_width
             pos_y = (y_min + h/2) / self.frame_height
-            
-            # Extract key landmarks for storage
-            key_landmarks = np.array([[lm.x, lm.y, lm.z] for lm in landmarks])
             
             return FaceData(
                 bbox=(x_min, y_min, w, h),
@@ -225,8 +266,11 @@ class FaceDetector:
         return annotated_frame
     
     def release(self):
-        """Release resources"""
+        """Release MediaPipe resources"""
         try:
+            if hasattr(self, 'face_detection') and self.face_detection is not None:
+                self.face_detection.close()
+                self.face_detection = None
             if hasattr(self, 'face_mesh') and self.face_mesh is not None:
                 self.face_mesh.close()
                 self.face_mesh = None
@@ -240,8 +284,3 @@ class FaceDetector:
             self.release()
         except Exception:
             pass  # Ignore errors during cleanup
-        logger.info("Face detector released")
-    
-    def __del__(self):
-        """Cleanup on destruction"""
-        self.release()

@@ -79,7 +79,7 @@ def main():
         print("  • Crowd-friendly: Waits for stability before adjusting")
         print("\n📊 Behavior:")
         print("  • Waits for distance to stabilize (1.5 seconds)")
-        print("  • Grace range: ±10cm (no updates within this range)")
+        print("  • Grace range: ±5cm (no updates within this range)")
         print("  • Movement threshold: 5cm (resets stability timer)")
         print("  • Perfect for crowds settling in!")
         print("\n⌨️  Press 'q' in the camera window to quit")
