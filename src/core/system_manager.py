@@ -7,6 +7,9 @@ import cv2
 import logging
 import time
 import numpy as np
+import json
+from pathlib import Path
+from datetime import datetime
 from typing import Optional
 from src.config import settings
 from src.modules.perception import (
@@ -73,6 +76,22 @@ class SystemManager:
         self.last_logged_brightness = None
         self.last_logged_volume = None
         
+        # Gesture counting for dashboard
+        self.gesture_counts = {
+            'volume_control': 0,
+            'brightness_control': 0,
+            'play_pause': 0,
+            'next_track': 0,
+            'prev_track': 0
+        }
+        
+        # Current gesture for display
+        self.current_gesture = None
+        
+        # Create data directory for dashboard metrics
+        self.metrics_dir = Path("data/dashboard")
+        self.metrics_dir.mkdir(parents=True, exist_ok=True)
+        
         logger.info("System manager initialized successfully")
     
     def start(self) -> bool:
@@ -138,28 +157,39 @@ class SystemManager:
                     # Toggle gesture (fist) always works
                     # The gesture controller toggles its own state, we need to sync
                     self.gestures_enabled = self.gesture_controller.is_active()
+                    self.current_gesture = 'toggle'
                 
                 elif self.gestures_enabled:
                     if gesture.gesture_type == 'volume_control' and gesture.value is not None:
                         gesture_adjustment_volume = gesture.value
+                        self.current_gesture = 'volume'
+                        self.gesture_counts['volume_control'] += 1
                         # Only log if value changed significantly (>5%)
                         if self.last_logged_volume is None or abs(gesture_adjustment_volume - self.last_logged_volume) > 5:
                             self.last_logged_volume = gesture_adjustment_volume
                         
                     elif gesture.gesture_type == 'brightness_control' and gesture.value is not None:
                         gesture_adjustment_brightness = gesture.value
+                        self.current_gesture = 'brightness'
+                        self.gesture_counts['brightness_control'] += 1
                         # Only log if value changed significantly (>5%)
                         if self.last_logged_brightness is None or abs(gesture_adjustment_brightness - self.last_logged_brightness) > 5:
                             self.last_logged_brightness = gesture_adjustment_brightness
                         
                     elif gesture.gesture_type == 'play_pause':
                         gesture_play_pause_toggle = True
+                        self.current_gesture = 'play_pause'
+                        self.gesture_counts['play_pause'] += 1
                         
                     elif gesture.gesture_type == 'next_track':
                         gesture_next_track = True
+                        self.current_gesture = 'next'
+                        self.gesture_counts['next_track'] += 1
                         
                     elif gesture.gesture_type == 'prev_track':
                         gesture_prev_track = True
+                        self.current_gesture = 'previous'
+                        self.gesture_counts['prev_track'] += 1
         
         # Handle play/pause gesture toggle
         if gesture_play_pause_toggle:
@@ -268,6 +298,13 @@ class SystemManager:
         self.processing_time = time.time() - start_time
         self.fps = 1.0 / self.processing_time if self.processing_time > 0 else 0
         self.frame_count += 1
+        
+        # Update dashboard metrics every 10 frames
+        if self.frame_count % 10 == 0:
+            self._update_dashboard_metrics(
+                face_count, weighted_distance, ambient_light, audio_level,
+                current_brightness, current_volume
+            )
     
     def _create_display_frame(self, frame, faces, gestures, face_count, distance, ambient_light, 
                              audio_level, brightness, volume):
@@ -460,6 +497,32 @@ class SystemManager:
             logger.warning("win32api not available - cannot control media")
         except Exception as e:
             logger.error(f"Failed to go to previous track: {e}")
+    
+    def _update_dashboard_metrics(self, face_count, distance, ambient_light, audio_level,
+                                   brightness, volume):
+        """Update dashboard metrics JSON file"""
+        try:
+            metrics = {
+                'timestamp': datetime.now().isoformat(),
+                'face_count': face_count,
+                'distance': float(distance) if distance is not None else 0.0,
+                'fps': float(self.fps),
+                'brightness': int(brightness),
+                'volume': float(volume),
+                'ambient_light': int(ambient_light) if ambient_light is not None else 50,
+                'audio_level': float(audio_level),
+                'gestures_enabled': self.gestures_enabled,
+                'current_gesture': self.current_gesture,
+                'media_paused': self.media_paused,
+                'gesture_counts': self.gesture_counts.copy()
+            }
+            
+            metrics_file = self.metrics_dir / "metrics.json"
+            with open(metrics_file, 'w') as f:
+                json.dump(metrics, f, indent=2)
+                
+        except Exception as e:
+            logger.error(f"Failed to update dashboard metrics: {e}")
     
     def get_system_status(self) -> dict:
         """Get comprehensive system status"""
